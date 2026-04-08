@@ -48,3 +48,28 @@ export default tseslint.config({
   },
 })
 ```
+
+# Frontend (Vite + React + TypeScript)
+
+## Configuration
+
+Create `frontend/.env.local` (or copy `frontend/.env.local.example`) and set:
+
+```dotenv
+VITE_API_TARGET=http://localhost:8080
+```
+
+This value is used by the Vite proxy for `/api/*` requests.
+
+## Scripts
+
+```bash
+npm run dev
+npm run test
+npm run build
+```
+
+## Auth Smoke Coverage
+
+- `src/pages/Login.test.tsx`: login success + invalid credentials behavior.
+- `src/api/client.test.ts`: bearer token injection + auto-clear on `401`.

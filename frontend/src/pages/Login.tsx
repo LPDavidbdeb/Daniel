@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import client from '@/api/client';
+import { setTokens } from '@/auth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -18,11 +20,20 @@ const Login = () => {
         password,
       });
       
-      localStorage.setItem('token', response.data.access);
-      localStorage.setItem('refresh', response.data.refresh);
+      setTokens(response.data.access, response.data.refresh);
       navigate('/');
-    } catch (err: any) {
-      setError('Identifiants invalides ou erreur serveur.');
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        if (!err.response) {
+          setError('Impossible de joindre l\'API (backend arrete ou mauvais port).');
+        } else if (err.response.status === 401) {
+          setError('Identifiants invalides.');
+        } else {
+          setError(err.response.data?.detail ?? 'Erreur serveur.');
+        }
+      } else {
+        setError('Erreur inattendue.');
+      }
     }
   };
 
@@ -39,8 +50,9 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
+              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -50,8 +62,9 @@ const Login = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
             <input
+              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

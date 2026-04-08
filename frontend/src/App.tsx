@@ -1,11 +1,16 @@
+import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from '@/pages/Login';
 import Home from '@/pages/Home';
+import { isAuthenticated, subscribeAuthChange } from '@/auth';
 
 // Composant pour protéger les routes
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const token = localStorage.getItem('token');
-  if (!token) {
+  const [authenticated, setAuthenticated] = useState(isAuthenticated());
+
+  useEffect(() => subscribeAuthChange(() => setAuthenticated(isAuthenticated())), []);
+
+  if (!authenticated) {
     return <Navigate to="/login" replace />;
   }
   return children;

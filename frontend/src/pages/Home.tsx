@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom';
+import { clearTokens } from '@/auth';
 
 const Home = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refresh');
+    clearTokens();
     navigate('/login');
   };
 
