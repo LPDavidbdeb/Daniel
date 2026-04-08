@@ -23,7 +23,7 @@ client.interceptors.response.use(
   (error) => {
     if (error?.response?.status === 401) {
       clearTokens();
-      if (window.location.pathname !== '/login') {
+      if (!import.meta.env.TEST && window.location.pathname !== '/login') {
         window.location.assign('/login');
       }
     }

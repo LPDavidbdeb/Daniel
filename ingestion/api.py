@@ -28,7 +28,7 @@ def preview_eleves(request, file: UploadedFile = File(...)):
     missing_columns = [col for col in required_columns if col not in df.columns]
     
     if missing_columns:
-        return HttpError(400, f"Colonnes manquantes : {', '.join(missing_columns)}. Veuillez vérifier votre extraction GPI.")
+        raise HttpError(400, f"Colonnes manquantes : {', '.join(missing_columns)}. Veuillez vérifier votre extraction GPI.")
 
     # 3. Validation ligne par ligne
     total_lignes = len(df)

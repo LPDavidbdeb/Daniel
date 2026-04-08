@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from '@/pages/Login';
 import Home from '@/pages/Home';
+import ImportEleves from '@/pages/ImportEleves';
 import { isAuthenticated, subscribeAuthChange } from '@/auth';
 
 // Composant pour protéger les routes
@@ -26,6 +27,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Home />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/import/eleves" 
+          element={
+            <ProtectedRoute>
+              <ImportEleves />
             </ProtectedRoute>
           } 
         />
