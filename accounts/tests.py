@@ -69,6 +69,7 @@ class AdminCreateUserAPITests(TestCase):
                 'last_name': 'User',
                 'is_staff': False,
                 'is_active': True,
+                'is_superuser': False,
             },
             content_type='application/json',
             HTTP_AUTHORIZATION=f'Bearer {token}',
@@ -76,6 +77,41 @@ class AdminCreateUserAPITests(TestCase):
 
         self.assertEqual(response.status_code, 201)
         self.assertTrue(get_user_model().objects.filter(email='new.user@example.com').exists())
+
+    def test_superuser_can_create_superuser(self):
+        token = self._get_access_token('admin@example.com', 'StrongPass123!')
+
+        response = self.client.post(
+            '/api/admin/users',
+            data={
+                'email': 'admin.created@example.com',
+                'password': 'AnotherStrongPass123!',
+                'is_superuser': True,
+            },
+            content_type='application/json',
+            HTTP_AUTHORIZATION=f'Bearer {token}',
+        )
+
+        self.assertEqual(response.status_code, 201)
+        created = get_user_model().objects.get(email='admin.created@example.com')
+        self.assertTrue(created.is_superuser)
+
+    def test_is_active_defaults_to_true(self):
+        token = self._get_access_token('admin@example.com', 'StrongPass123!')
+
+        response = self.client.post(
+            '/api/admin/users',
+            data={
+                'email': 'default.active@example.com',
+                'password': 'AnotherStrongPass123!',
+            },
+            content_type='application/json',
+            HTTP_AUTHORIZATION=f'Bearer {token}',
+        )
+
+        self.assertEqual(response.status_code, 201)
+        created = get_user_model().objects.get(email='default.active@example.com')
+        self.assertTrue(created.is_active)
 
     def test_non_superuser_gets_403(self):
         token = self._get_access_token('member@example.com', 'StrongPass123!')

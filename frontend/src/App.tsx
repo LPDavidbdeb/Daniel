@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from '@/pages/Login';
 import Home from '@/pages/Home';
 import ImportEleves from '@/pages/ImportEleves';
+import ImportResultats from '@/pages/ImportResultats';
 import Navbar from '@/components/Navbar';
 import { isAuthenticated, subscribeAuthChange } from '@/auth';
 
@@ -46,6 +47,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Layout><ImportEleves /></Layout>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/import/resultats" 
+          element={
+            <ProtectedRoute>
+              <Layout><ImportResultats /></Layout>
             </ProtectedRoute>
           } 
         />

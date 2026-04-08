@@ -8,6 +8,7 @@ class AdminUserCreateInput(Schema):
     last_name: str = ""
     is_staff: bool = False
     is_active: bool = True
+    is_superuser: bool = False
 
 
 class AdminUserCreateOutput(Schema):
@@ -18,4 +19,3 @@ class AdminUserCreateOutput(Schema):
     is_staff: bool
     is_active: bool
     is_superuser: bool
-

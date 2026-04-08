@@ -89,7 +89,7 @@ def commit_eleves(request, file: UploadedFile = File(...)):
 
 @router.post("/preview-results")
 def preview_results(request, file: UploadedFile = File(...)):
-    required = ["Fiche", "Matière", "Grp", "[1]", "[2]", "Som. Final", "Description de la matière"]
+    required = ["Fiche", "Matière", "Grp", "[1]", "[2]", "Som. Final", "Description de la matière", "Nom et prénom de l'enseignant"]
     df = get_cleaned_dataframe(file, required)
     
     # Cache des fiches existantes

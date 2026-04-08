@@ -39,6 +39,7 @@ def create_user(request, payload: AdminUserCreateInput):
         last_name=payload.last_name,
         is_staff=payload.is_staff,
         is_active=payload.is_active,
+        is_superuser=payload.is_superuser,
     )
 
     return 201, AdminUserCreateOutput(
