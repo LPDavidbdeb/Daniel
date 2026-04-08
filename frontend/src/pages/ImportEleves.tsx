@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, AlertCircle, CheckCircle2, FileText, XCircle } from 'lucide-react';
+import { Upload, AlertCircle, CheckCircle2, FileText, XCircle, Loader2 } from 'lucide-react';
 import client from '@/api/client';
 
 interface ValidationError {
@@ -17,6 +17,7 @@ interface AnalysisReport {
 const ImportEleves = () => {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [committing, setCommitting] = useState(false);
   const [report, setReport] = useState<AnalysisReport | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,6 +54,34 @@ const ImportEleves = () => {
     }
   };
 
+  const handleCommit = async () => {
+    if (!file) return;
+    setCommitting(true);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await client.post('/ingestion/commit-eleves', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      const { created, updated, deactivated } = response.data.summary;
+      alert(`Importation réussie !\n\n- Créés : ${created}\n- Mis à jour : ${updated}\n- Désactivés : ${deactivated}`);
+      
+      // Reset de l'état
+      setFile(null);
+      setReport(null);
+    } catch (err: any) {
+      const msg = err.response?.data?.detail || "Une erreur critique est survenue lors de l'enregistrement.";
+      alert(msg);
+    } finally {
+      setCommitting(false);
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-8">
       <div className="flex flex-col space-y-2">
@@ -85,7 +114,7 @@ const ImportEleves = () => {
               <span className="text-sm font-medium text-gray-700">{file.name}</span>
             </div>
           )}
-          {file && !loading && (
+          {file && !loading && !report && (
             <button
               onClick={handleUpload}
               className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold shadow-sm hover:bg-blue-700 transition-colors"
@@ -96,7 +125,7 @@ const ImportEleves = () => {
         </div>
       </div>
 
-      {/* Chargement */}
+      {/* Chargement Analyse */}
       {loading && (
         <div className="flex items-center justify-center p-8 space-x-3 text-blue-600 animate-pulse">
           <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" />
@@ -140,9 +169,9 @@ const ImportEleves = () => {
               <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
                 <h3 className="font-bold text-gray-800">Détails des erreurs</h3>
               </div>
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto max-h-96">
                 <table className="w-full text-left">
-                  <thead className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase">
+                  <thead className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase sticky top-0">
                     <tr>
                       <th className="px-6 py-3">Ligne</th>
                       <th className="px-6 py-3">Élève / Identifiant</th>
@@ -174,16 +203,20 @@ const ImportEleves = () => {
 
           <div className="flex justify-end pt-4">
             <button
-              disabled={report.erreurs.length > 0 || report.total_lignes === 0}
-              onClick={() => console.log('Importation confirmée !')}
+              disabled={report.erreurs.length > 0 || report.total_lignes === 0 || committing}
+              onClick={handleCommit}
               className={`flex items-center space-x-2 px-8 py-3 rounded-lg font-bold shadow-md transition-all ${
-                report.erreurs.length > 0 || report.total_lignes === 0
+                report.erreurs.length > 0 || report.total_lignes === 0 || committing
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   : 'bg-green-600 text-white hover:bg-green-700 transform hover:-translate-y-0.5'
               }`}
             >
-              <CheckCircle2 className="h-5 w-5" />
-              <span>Confirmer l'importation</span>
+              {committing ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <CheckCircle2 className="h-5 w-5" />
+              )}
+              <span>{committing ? 'Importation en cours...' : "Confirmer l'importation"}</span>
             </button>
           </div>
         </div>
