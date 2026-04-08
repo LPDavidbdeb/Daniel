@@ -6,9 +6,29 @@ from ninja.errors import HttpError
 from ninja_jwt.authentication import JWTAuth
 
 from .models import User
-from .schemas import AdminUserCreateInput, AdminUserCreateOutput
+from .schemas import (
+    AdminCurrentUserOutput,
+    AdminUserCreateInput,
+    AdminUserCreateOutput,
+)
 
 router = Router(tags=["Admin Users"], auth=JWTAuth())
+
+
+@router.get("/me", response=AdminCurrentUserOutput)
+def current_user(request):
+    if not request.user.is_authenticated:
+        raise HttpError(401, "Authentication required.")
+
+    return AdminCurrentUserOutput(
+        id=request.user.id,
+        email=request.user.email,
+        first_name=request.user.first_name,
+        last_name=request.user.last_name,
+        is_staff=request.user.is_staff,
+        is_active=request.user.is_active,
+        is_superuser=request.user.is_superuser,
+    )
 
 
 @router.post("/users", response={201: AdminUserCreateOutput})

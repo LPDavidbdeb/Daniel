@@ -142,3 +142,16 @@ class AdminCreateUserAPITests(TestCase):
         )
 
         self.assertEqual(response.status_code, 409)
+
+    def test_admin_me_returns_current_user_profile(self):
+        token = self._get_access_token('admin@example.com', 'StrongPass123!')
+
+        response = self.client.get(
+            '/api/admin/me',
+            HTTP_AUTHORIZATION=f'Bearer {token}',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload['email'], 'admin@example.com')
+        self.assertTrue(payload['is_superuser'])

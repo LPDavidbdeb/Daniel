@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileUp, Users, LogOut, ChevronDown, Database, GraduationCap } from 'lucide-react';
+import { FileUp, Users, LogOut, ChevronDown, Database, GraduationCap, Shield } from 'lucide-react';
+import { clearTokens } from '@/auth';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -8,8 +9,7 @@ const Navbar = () => {
   const location = useLocation();
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refresh');
+    clearTokens();
     navigate('/login');
   };
 
@@ -28,6 +28,15 @@ const Navbar = () => {
             <div className="hidden md:flex items-center gap-2">
               <Link to="/" className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'}`}>
                 Tableau de bord
+              </Link>
+
+              <Link to="/groupes" className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/groupes') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'}`}>
+                Groupes
+              </Link>
+
+              <Link to="/admin/users" className={`flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/admin/users') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'}`}>
+                <Shield className="h-4 w-4" />
+                Administration
               </Link>
 
               <div className="relative" onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>

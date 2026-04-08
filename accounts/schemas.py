@@ -19,3 +19,14 @@ class AdminUserCreateOutput(Schema):
     is_staff: bool
     is_active: bool
     is_superuser: bool
+
+
+class AdminCurrentUserOutput(Schema):
+    id: int
+    email: str
+    first_name: str
+    last_name: str
+    is_staff: bool
+    is_active: bool
+    is_superuser: bool
+
