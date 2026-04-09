@@ -1,0 +1,18 @@
+[
+  {
+    "local_code": "FRA128",
+    "meq_code": "132108",
+    "description": "Français Sec 1",
+    "periods": 8,
+    "level": 1,
+    "is_core_or_sanctioned": true
+  },
+  {
+    "local_code": "MAT406",
+    "meq_code": "063406",
+    "description": "Mathématique SN Sec 4",
+    "periods": 6,
+    "level": 4,
+    "is_core_or_sanctioned": true
+  }
+]

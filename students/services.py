@@ -15,9 +15,9 @@ class StudentProfilingService:
     @staticmethod
     def get_failed_courses(student: Student, passing_grade: int = 60) -> list[str]:
         """Retourne la liste des codes de cours (Matière) en échec."""
-        # Correction 3NF : course_code est maintenant dans offering__course__code
+        # Correction 3NF : course_code est maintenant dans offering__course__local_code
         failed_results = student.results.filter(final_grade__lt=passing_grade)
-        return list(failed_results.values_list('offering__course__code', flat=True))
+        return list(failed_results.values_list('offering__course__local_code', flat=True))
 
     @staticmethod
     def determine_academic_profile(student: Student) -> str:

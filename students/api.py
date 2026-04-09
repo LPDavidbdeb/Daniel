@@ -51,13 +51,13 @@ def get_stats_summary(request):
         else:
             # --- LOGIQUE 2e CYCLE (PAR MATIÈRE) ---
             course_data = AcademicResult.objects.filter(student__in=students_in_lvl) \
-                .values('offering__course__code', 'offering__course__description') \
+                .values('offering__course__local_code', 'offering__course__description') \
                 .annotate(student_count=Count('student_id', distinct=True)) \
-                .order_by('offering__course__code')
+                .order_by('offering__course__local_code')
             
             stat_item["course_stats"] = [
                 {
-                    "code": c['offering__course__code'],
+                    "code": c['offering__course__local_code'],
                     "description": c['offering__course__description'],
                     "count": c['student_count']
                 } for c in course_data

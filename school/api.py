@@ -4,6 +4,7 @@ from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.errors import HttpError
+from ninja_jwt.authentication import JWTAuth
 from .models import Course, CourseOffering, Teacher
 from .schemas import (
     CourseCrudIn,
@@ -15,7 +16,7 @@ from .schemas import (
     TeacherDetailOut,
 )
 
-router = Router()
+router = Router(auth=JWTAuth())
 
 
 def _require_superuser(request) -> None:
