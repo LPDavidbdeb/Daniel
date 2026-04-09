@@ -24,4 +24,4 @@ class AcademicResult(models.Model):
         unique_together = ('student', 'offering')
 
     def __str__(self):
-        return f"{self.student.full_name} - {self.offering.course.code} ({self.academic_year})"
+        return f"{self.student.full_name} - {self.offering.course.local_code} ({self.academic_year})"

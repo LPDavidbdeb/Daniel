@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileUp, Users, LogOut, ChevronDown, Database, GraduationCap, BarChart3, Presentation } from 'lucide-react';
+import { FileUp, Users, LogOut, ChevronDown, Database, GraduationCap, BarChart3, Settings } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,6 +41,11 @@ const Navbar = () => {
               <Link to="/stats" className={`flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/stats') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'}`}>
                 <BarChart3 className="h-4 w-4" />
                 Statistiques
+              </Link>
+
+              <Link to="/ecole/crud" className={`flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${location.pathname.startsWith('/ecole') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'}`}>
+                <Settings className="h-4 w-4" />
+                CRUD Ecole
               </Link>
 
               <div className="relative" onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>

@@ -117,7 +117,7 @@ def commit_results(request, file: UploadedFile = File(...), academic_year: str =
                 
                 # 1. Course Sync
                 course, _ = Course.objects.update_or_create(
-                    code=val.course_code, 
+                    local_code=val.course_code, 
                     defaults={'description': val.course_description, 'is_active': True}
                 )
                 
@@ -149,7 +149,7 @@ def commit_results(request, file: UploadedFile = File(...), academic_year: str =
                     academic_year=academic_year,
                     defaults={'teacher': teacher, 'is_active': True}
                 )
-                offres_entrantes.add((course.code, offering.group_number, academic_year))
+                offres_entrantes.add((course.local_code, offering.group_number, academic_year))
 
                 # 4. Result Update
                 AcademicResult.objects.update_or_create(
@@ -169,7 +169,7 @@ def commit_results(request, file: UploadedFile = File(...), academic_year: str =
         # Désactiver les offres de cours disparues POUR CETTE ANNÉE
         offerings_to_deactivate = CourseOffering.objects.filter(is_active=True, academic_year=academic_year)
         for off in offerings_to_deactivate:
-            if (off.course.code, off.group_number, academic_year) not in offres_entrantes:
+            if (off.course.local_code, off.group_number, academic_year) not in offres_entrantes:
                 off.is_active = False
                 off.save()
 

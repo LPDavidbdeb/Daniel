@@ -11,6 +11,7 @@ import TeacherList from '@/pages/TeacherList';
 import TeacherDetail from '@/pages/TeacherDetail';
 import StudentStats from '@/pages/StudentStats';
 import AdminUsers from '@/pages/AdminUsers';
+import SchoolCrud from '@/pages/SchoolCrud';
 import Navbar from '@/components/Navbar';
 import client from '@/api/client';
 import { isAuthenticated, subscribeAuthChange } from '@/auth';
@@ -79,7 +80,17 @@ function App() {
         <Route path="/enseignants" element={<ProtectedRoute><Layout><TeacherList /></Layout></ProtectedRoute>} />
         <Route path="/enseignants/:teacherId" element={<ProtectedRoute><Layout><TeacherDetail /></Layout></ProtectedRoute>} />
         <Route path="/stats" element={<ProtectedRoute><Layout><StudentStats /></Layout></ProtectedRoute>} />
-        
+        <Route
+          path="/ecole/crud"
+          element={
+            <ProtectedRoute>
+              <SuperuserRoute>
+                <Layout><SchoolCrud /></Layout>
+              </SuperuserRoute>
+            </ProtectedRoute>
+          }
+        />
+
         {/* Administration */}
         <Route 
           path="/admin/users" 

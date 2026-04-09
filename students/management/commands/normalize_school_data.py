@@ -37,7 +37,7 @@ class Command(BaseCommand):
             for res in results:
                 # 1. Gérer le cours
                 course, created = Course.objects.get_or_create(
-                    code=res.course_code,
+                    local_code=res.course_code,
                     defaults={'description': res.course_description}
                 )
                 if created: created_courses += 1

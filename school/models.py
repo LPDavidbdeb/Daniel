@@ -2,7 +2,13 @@ from django.db import models
 from django.conf import settings
 
 class Course(models.Model):
-    code = models.CharField(max_length=20, unique=True, db_index=True)
+    local_code = models.CharField(max_length=20, unique=True, db_index=True)
+    meq_code = models.CharField(
+        max_length=20, 
+        null=True, 
+        blank=True,
+        help_text="Code officiel du Ministère (MEQ)"
+    )
     description = models.CharField(max_length=255)
     level = models.IntegerField(
         null=True, 
@@ -13,6 +19,10 @@ class Course(models.Model):
         default=0, 
         help_text="Nombre de crédits associés au cours"
     )
+    periods = models.IntegerField(
+        default=0,
+        help_text="Nombre de périodes dans l'horaire"
+    )
     is_core_or_sanctioned = models.BooleanField(
         default=False, 
         help_text="Vrai pour les matières de base bloquantes comme le français ou les mathématiques, ou les matières sanctionnées par le MEQ"
@@ -20,7 +30,7 @@ class Course(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.code} - {self.description}"
+        return f"{self.local_code} - {self.description}"
 
 class Teacher(models.Model):
     user = models.OneToOneField(
@@ -48,7 +58,8 @@ class CourseOffering(models.Model):
     is_active = models.BooleanField(default=True)
 
     class Meta:
+        # Un groupe-cours est unique pour une année donnée
         unique_together = ('course', 'group_number', 'academic_year')
 
     def __str__(self):
-        return f"{self.course.code} ({self.group_number}) [{self.academic_year}]"
+        return f"{self.course.local_code} ({self.group_number}) [{self.academic_year}]"

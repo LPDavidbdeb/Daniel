@@ -8,7 +8,7 @@ User = get_user_model()
 class AcademicResultTest(TestCase):
     def setUp(self):
         self.student = Student.objects.create(fiche=123, full_name="John Doe", permanent_code="ABCD12345678")
-        self.course = Course.objects.create(code="MAT101", description="Maths")
+        self.course = Course.objects.create(local_code="MAT101", description="Maths")
         user = User.objects.create(email="prof@test.com")
         self.teacher = Teacher.objects.create(user=user, full_name="Prof Test")
         self.offering = CourseOffering.objects.create(

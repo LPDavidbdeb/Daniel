@@ -3,9 +3,9 @@ from .models import Course, Teacher, CourseOffering
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('code', 'description', 'level', 'credits', 'is_core_or_sanctioned', 'is_active')
+    list_display = ('local_code', 'meq_code', 'description', 'level', 'credits', 'is_core_or_sanctioned', 'is_active')
     list_filter = ('level', 'is_core_or_sanctioned', 'is_active')
-    search_fields = ('code', 'description')
+    search_fields = ('local_code', 'meq_code', 'description')
 
 @admin.register(Teacher)
 class TeacherAdmin(admin.ModelAdmin):

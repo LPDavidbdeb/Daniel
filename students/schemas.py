@@ -4,7 +4,7 @@ from .models import Student, AcademicResult
 from .services import StudentProfilingService
 
 class AcademicResultOut(Schema):
-    course_code: str
+    course_local_code: str
     course_description: str
     course_group: str
     teacher_name: Optional[str] = None
@@ -14,8 +14,8 @@ class AcademicResultOut(Schema):
     final_grade: Optional[int] = None
 
     @staticmethod
-    def resolve_course_code(obj):
-        return obj.offering.course.code if obj.offering else "N/A"
+    def resolve_course_local_code(obj):
+        return obj.offering.course.local_code if obj.offering else "N/A"
 
     @staticmethod
     def resolve_course_description(obj):
