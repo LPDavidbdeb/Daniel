@@ -24,10 +24,11 @@ class TeacherCrudIn(Schema):
 
 class TeacherCrudOut(ModelSchema):
     user_email: str
+
     class Meta:
         model = Teacher
-        fields = ['id', 'full_name', 'is_active']
-    
+        fields = ['id', 'user', 'full_name', 'is_active']
+
     @staticmethod
     def resolve_user_email(obj):
         return obj.user.email

@@ -1,13 +1,20 @@
 from typing import List, Dict, Any, Optional
 import urllib.parse
-from django.db.models import Count, Q, Avg
-from django.db.models.functions import Substr
+from django.db import IntegrityError
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404
 from ninja import Router, Schema
+from ninja.errors import HttpError
+from ninja_jwt.authentication import JWTAuth
 from .models import Student, AcademicResult
-from .schemas import StudentOut, StudentDetailOut, GroupListOut
+from .schemas import StudentDetailOut, GroupListOut, StudentCrudIn, StudentCrudOut
 
-router = Router()
+router = Router(auth=JWTAuth())
+
+def _require_superuser(request) -> None:
+    user = getattr(request, 'user', None)
+    if not user or not user.is_authenticated or not user.is_superuser:
+        raise HttpError(403, 'Acces refuse: superuser requis.')
 
 class LevelStatOut(Schema):
     level: str
@@ -34,15 +41,18 @@ def get_stats_summary(request):
             # Un élève est "à risque" s'il a < 50 dans au moins 2 matières de base (Français, Math, Anglais)
             
             at_risk_ids = []
+            core_course_filter = (
+                Q(offering__course__description__icontains="FRANCAIS") |
+                Q(offering__course__description__icontains="MATHEMATIQUE") |
+                Q(offering__course__description__icontains="ANGLAIS")
+            )
             for student in students_in_lvl:
                 # On récupère les notes finales des matières de base
-                core_fails = student.results.filter(
-                    Q(offering__course__description__icontains="FRANCAIS") |
-                    Q(offering__course__description__icontains="MATHEMATIQUE") |
-                    Q(offering__course__description__icontains="ANGLAIS"),
+                core_fails = AcademicResult.objects.filter(
+                    student=student,
                     final_grade__lt=50
-                ).count()
-                
+                ).filter(core_course_filter).count()
+
                 if core_fails >= 2:
                     at_risk_ids.append(student.fiche)
             
@@ -55,13 +65,14 @@ def get_stats_summary(request):
                 .annotate(student_count=Count('student_id', distinct=True)) \
                 .order_by('offering__course__local_code')
             
-            stat_item["course_stats"] = [
+            course_stats = [
                 {
                     "code": c['offering__course__local_code'],
                     "description": c['offering__course__description'],
                     "count": c['student_count']
                 } for c in course_data
             ]
+            stat_item["course_stats"] = course_stats
 
         results.append(stat_item)
     
@@ -78,6 +89,56 @@ def list_group_students(request, group_name: str):
     decoded_name = urllib.parse.unquote(group_name)
     return Student.objects.filter(current_group=decoded_name, is_active=True).prefetch_related('results__offering__course','results__offering__teacher')
 
+
 @router.get("/{fiche}", response=StudentDetailOut)
 def get_student_detail(request, fiche: int):
     return get_object_or_404(Student, fiche=fiche)
+
+
+@router.get('/crud/students', response=List[StudentCrudOut])
+def list_students_crud(request):
+    _require_superuser(request)
+    return Student.objects.all().order_by('full_name')
+
+
+@router.post('/crud/students', response=StudentCrudOut)
+def create_student_crud(request, payload: StudentCrudIn):
+    _require_superuser(request)
+    try:
+        return Student.objects.create(
+            fiche=payload.fiche,
+            permanent_code=payload.permanent_code,
+            full_name=payload.full_name,
+            level=payload.level,
+            current_group=payload.current_group,
+            is_active=payload.is_active,
+        )
+    except IntegrityError:
+        raise HttpError(409, 'Conflit: fiche ou code permanent deja utilise.')
+
+
+@router.put('/crud/students/{fiche}', response=StudentCrudOut)
+def update_student_crud(request, fiche: int, payload: StudentCrudIn):
+    _require_superuser(request)
+    if payload.fiche != fiche:
+        raise HttpError(400, 'La fiche du formulaire doit correspondre a la ressource.')
+
+    student = get_object_or_404(Student, fiche=fiche)
+    student.permanent_code = payload.permanent_code
+    student.full_name = payload.full_name
+    student.level = payload.level
+    student.current_group = payload.current_group
+    student.is_active = payload.is_active
+    try:
+        student.save()
+    except IntegrityError:
+        raise HttpError(409, 'Conflit: code permanent deja utilise.')
+    return student
+
+
+@router.delete('/crud/students/{fiche}')
+def delete_student_crud(request, fiche: int):
+    _require_superuser(request)
+    student = get_object_or_404(Student, fiche=fiche)
+    student.delete()
+    return {'ok': True}

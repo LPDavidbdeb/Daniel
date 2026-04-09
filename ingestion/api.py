@@ -56,8 +56,6 @@ def preview_eleves(request, file: UploadedFile = File(...)):
 
 @router.post("/commit-eleves")
 def commit_eleves(request, file: UploadedFile = File(...)):
-    # Note: Pour les élèves, l'année scolaire est moins critique car ils sont uniques par fiche
-    # mais on pourrait l'ajouter si on voulait tracer l'inscription annuelle.
     required = ["Fiche", "Code permanent", "Nom et prénom", "Statut", "Classe", "Groupe-repère"]
     df = get_cleaned_dataframe(file, required)
     valid_rows, fiches_entrantes = [], set()
@@ -105,22 +103,42 @@ def commit_results(request, file: UploadedFile = File(...), academic_year: str =
     teacher_group, _ = Group.objects.get_or_create(name='Professeurs')
     existing_fiches = set(Student.objects.values_list('fiche', flat=True))
 
-    offres_entrantes: Set[Tuple[str, str, str]] = set() # (CodeCours, Grp, Year)
+    offres_entrantes: Set[Tuple[str, str, str]] = set() # (LocalCode, Grp, Year)
+    import_errors = []
 
     with transaction.atomic():
         count = 0
-        for _, row in df.iterrows():
+        for index, row in df.iterrows():
             row_dict = row.to_dict()
             if row_dict.get("Fiche") not in existing_fiches: continue
+            
             try:
                 val = ResultatRowSchema(**row_dict)
                 
-                # 1. Course Sync
-                course, _ = Course.objects.update_or_create(
-                    local_code=val.course_code, 
-                    defaults={'description': val.course_description, 'is_active': True}
-                )
+                # --- LOGIQUE DE VERROUILLAGE MASTER DATA (COURSE) ---
+                # On cherche les cours ayant ce code MEQ
+                course_matches = Course.objects.filter(meq_code=val.course_code)
                 
+                if not course_matches.exists():
+                    import_errors.append(f"Ligne {index+2} : Code MEQ {val.course_code} introuvable dans le catalogue des cours. Ligne ignorée.")
+                    continue
+                
+                # Heuristique de désambiguïsation (Zénith vs Régulier)
+                course = None
+                if course_matches.count() > 1:
+                    if 'Z' in val.course_group.upper():
+                        # On privilégie le cours dont le code local contient Z
+                        course = course_matches.filter(local_code__icontains='Z').first() or course_matches.first()
+                    else:
+                        # On exclut le cours Z
+                        course = course_matches.exclude(local_code__icontains='Z').first() or course_matches.first()
+                else:
+                    course = course_matches.first()
+
+                if not course:
+                    import_errors.append(f"Ligne {index+2} : Impossible de mapper le code MEQ {val.course_code} vers un cours local valide.")
+                    continue
+
                 # 2. Teacher & User Sync
                 teacher = None
                 if val.teacher_name:
@@ -142,7 +160,7 @@ def commit_results(request, file: UploadedFile = File(...), academic_year: str =
                             teacher.user.is_active = True
                             teacher.user.save()
 
-                # 3. Course Offering Sync (Utilise l'année spécifiée)
+                # 3. Course Offering Sync
                 offering, _ = CourseOffering.objects.update_or_create(
                     course=course, 
                     group_number=val.course_group, 
@@ -156,7 +174,7 @@ def commit_results(request, file: UploadedFile = File(...), academic_year: str =
                     student_id=val.fiche, 
                     offering=offering,
                     defaults={
-                        'academic_year': academic_year, # Sync dénormalisé
+                        'academic_year': academic_year,
                         'step_1_grade': val.step_1_grade, 
                         'step_2_grade': val.step_2_grade, 
                         'final_grade': val.final_grade
@@ -166,11 +184,14 @@ def commit_results(request, file: UploadedFile = File(...), academic_year: str =
             except ValidationError: continue
 
         # --- LOGIQUE DE DIFF (SOFT DELETE) ---
-        # Désactiver les offres de cours disparues POUR CETTE ANNÉE
         offerings_to_deactivate = CourseOffering.objects.filter(is_active=True, academic_year=academic_year)
         for off in offerings_to_deactivate:
             if (off.course.local_code, off.group_number, academic_year) not in offres_entrantes:
                 off.is_active = False
                 off.save()
 
-    return {"success": True, "count": count}
+    return {
+        "success": True, 
+        "count": count,
+        "errors": import_errors
+    }

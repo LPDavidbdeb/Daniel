@@ -1,25 +1,27 @@
-import axios from 'axios';
-import client from '@/api/client';
+import client from './client';
 
-export interface SchoolCourse {
-  id: number;
-  code: string;
+export interface Course {
+  id?: number;
+  local_code: string;
+  meq_code: string | null;
   description: string;
   level: number | null;
   credits: number;
+  periods: number;
   is_core_or_sanctioned: boolean;
   is_active: boolean;
 }
 
-export interface SchoolTeacher {
-  id: number;
-  user: number | null;
+export interface Teacher {
+  id?: number;
+  user: number;
   full_name: string;
   is_active: boolean;
+  user_email?: string;
 }
 
-export interface SchoolCourseOffering {
-  id: number;
+export interface CourseOffering {
+  id?: number;
   course: number;
   group_number: string;
   academic_year: string;
@@ -27,95 +29,37 @@ export interface SchoolCourseOffering {
   is_active: boolean;
 }
 
-export type SchoolCoursePayload = Omit<SchoolCourse, 'id'>;
-export type SchoolTeacherPayload = Omit<SchoolTeacher, 'id'>;
-export type SchoolCourseOfferingPayload = Omit<SchoolCourseOffering, 'id'>;
-
-export async function listCourses(): Promise<SchoolCourse[]> {
-  const response = await client.get<SchoolCourse[]>('/school/crud/courses');
-  return response.data;
+export interface Cohort {
+  id?: number;
+  name: string;
+  cohort_type: 'ZENITH' | 'IFP' | 'DIM' | 'ACCUEIL' | 'PARCOURS';
+  academic_year: string;
+  min_capacity: number;
+  max_capacity: number;
+  is_confirmed: boolean;
 }
 
-export async function createCourse(payload: SchoolCoursePayload): Promise<SchoolCourse> {
-  const response = await client.post<SchoolCourse>('/school/crud/courses', payload);
-  return response.data;
-}
+// --- COURSES ---
+export const getCourses = () => client.get<Course[]>('/school/crud/courses');
+export const createCourse = (data: Course) => client.post<Course>('/school/crud/courses', data);
+// Note: On utilise l'ID technique pour les opérations CRUD car Django Ninja attend l'ID numérique du modèle
+export const updateCourse = (id: number, data: Course) => client.put<Course>(`/school/crud/courses/${id}`, data);
+export const deleteCourse = (id: number) => client.delete(`/school/crud/courses/${id}`);
 
-export async function updateCourse(id: number, payload: SchoolCoursePayload): Promise<SchoolCourse> {
-  const response = await client.put<SchoolCourse>(`/school/crud/courses/${id}`, payload);
-  return response.data;
-}
+// --- TEACHERS ---
+export const getTeachers = () => client.get<Teacher[]>('/school/crud/teachers');
+export const createTeacher = (data: Teacher) => client.post<Teacher>('/school/crud/teachers', data);
+export const updateTeacher = (id: number, data: Teacher) => client.put<Teacher>(`/school/crud/teachers/${id}`, data);
+export const deleteTeacher = (id: number) => client.delete(`/school/crud/teachers/${id}`);
 
-export async function deleteCourse(id: number): Promise<void> {
-  await client.delete(`/school/crud/courses/${id}`);
-}
+// --- OFFERINGS ---
+export const getOfferings = () => client.get<CourseOffering[]>('/school/crud/course-offerings');
+export const createOffering = (data: CourseOffering) => client.post<CourseOffering>('/school/crud/course-offerings', data);
+export const updateOffering = (id: number, data: CourseOffering) => client.put<CourseOffering>(`/school/crud/course-offerings/${id}`, data);
+export const deleteOffering = (id: number) => client.delete(`/school/crud/course-offerings/${id}`);
 
-export async function listTeachers(): Promise<SchoolTeacher[]> {
-  const response = await client.get<SchoolTeacher[]>('/school/crud/teachers');
-  return response.data;
-}
-
-export async function createTeacher(payload: SchoolTeacherPayload): Promise<SchoolTeacher> {
-  const response = await client.post<SchoolTeacher>('/school/crud/teachers', payload);
-  return response.data;
-}
-
-export async function updateTeacher(id: number, payload: SchoolTeacherPayload): Promise<SchoolTeacher> {
-  const response = await client.put<SchoolTeacher>(`/school/crud/teachers/${id}`, payload);
-  return response.data;
-}
-
-export async function deleteTeacher(id: number): Promise<void> {
-  await client.delete(`/school/crud/teachers/${id}`);
-}
-
-export async function listCourseOfferings(): Promise<SchoolCourseOffering[]> {
-  const response = await client.get<SchoolCourseOffering[]>('/school/crud/course-offerings');
-  return response.data;
-}
-
-export async function createCourseOffering(payload: SchoolCourseOfferingPayload): Promise<SchoolCourseOffering> {
-  const response = await client.post<SchoolCourseOffering>('/school/crud/course-offerings', payload);
-  return response.data;
-}
-
-export async function updateCourseOffering(
-  id: number,
-  payload: SchoolCourseOfferingPayload,
-): Promise<SchoolCourseOffering> {
-  const response = await client.put<SchoolCourseOffering>(`/school/crud/course-offerings/${id}`, payload);
-  return response.data;
-}
-
-export async function deleteCourseOffering(id: number): Promise<void> {
-  await client.delete(`/school/crud/course-offerings/${id}`);
-}
-
-export function getApiErrorMessage(error: unknown): string {
-  if (!axios.isAxiosError(error)) {
-    return 'Erreur inattendue.';
-  }
-  if (!error.response) {
-    return 'Impossible de joindre l API.';
-  }
-
-  const detail = error.response.data?.detail;
-  if (typeof detail === 'string') {
-    return detail;
-  }
-
-  if (Array.isArray(detail)) {
-    return detail.join(' | ');
-  }
-
-  if (detail && typeof detail === 'object') {
-    const entries = Object.entries(detail as Record<string, unknown>);
-    if (entries.length > 0) {
-      return entries
-        .map(([key, value]) => `${key}: ${String(value)}`)
-        .join(' | ');
-    }
-  }
-
-  return 'Erreur serveur.';
-}
+// --- COHORTS ---
+export const getCohorts = () => client.get<Cohort[]>('/school/crud/cohorts');
+export const createCohort = (data: Cohort) => client.post<Cohort>('/school/crud/cohorts', data);
+export const updateCohort = (id: number, data: Cohort) => client.put<Cohort>(`/school/crud/cohorts/${id}`, data);
+export const deleteCohort = (id: number) => client.delete(`/school/crud/cohorts/${id}`);

@@ -74,3 +74,17 @@ class LevelCourseStatOut(Schema):
     course_code: str
     course_description: str
     student_count: int
+
+class StudentCrudIn(Schema):
+    fiche: int
+    permanent_code: str
+    full_name: str
+    level: str
+    current_group: str
+    is_active: bool = True
+
+
+class StudentCrudOut(ModelSchema):
+    class Meta:
+        model = Student
+        fields = ['fiche', 'permanent_code', 'full_name', 'level', 'current_group', 'is_active']

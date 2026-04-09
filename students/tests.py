@@ -2,6 +2,9 @@ from django.test import TestCase
 from school.models import Course, CourseOffering, Teacher
 from students.models import Student, AcademicResult
 from django.contrib.auth import get_user_model
+from types import SimpleNamespace
+from students.api import create_student_crud, update_student_crud, delete_student_crud, list_students_crud
+from students.schemas import StudentCrudIn
 
 User = get_user_model()
 
@@ -39,3 +42,41 @@ class AcademicResultTest(TestCase):
         
         count_other = AcademicResult.objects.filter(academic_year="2023-2024").count()
         self.assertEqual(count_other, 0)
+
+
+class StudentCrudTest(TestCase):
+    def setUp(self):
+        self.superuser = User.objects.create(email='admin@test.com')
+        self.superuser.is_staff = True
+        self.superuser.is_superuser = True
+        self.superuser.save()
+        self.request = SimpleNamespace(user=self.superuser)
+
+    def test_create_list_update_delete_student(self):
+        created = create_student_crud(self.request, StudentCrudIn(
+            fiche=1001,
+            permanent_code='PCODE1001',
+            full_name='Nouvel Eleve',
+            level='3',
+            current_group='301',
+            is_active=True,
+        ))
+        self.assertEqual(created.fiche, 1001)
+
+        students = list_students_crud(self.request)
+        self.assertEqual(len(students), 1)
+
+        updated = update_student_crud(self.request, 1001, StudentCrudIn(
+            fiche=1001,
+            permanent_code='PCODE1001X',
+            full_name='Eleve Mis A Jour',
+            level='4',
+            current_group='402',
+            is_active=False,
+        ))
+        self.assertEqual(updated.full_name, 'Eleve Mis A Jour')
+        self.assertFalse(updated.is_active)
+
+        delete_student_crud(self.request, 1001)
+        self.assertEqual(Student.objects.count(), 0)
+
