@@ -2,7 +2,7 @@ import pandas as pd
 import unicodedata
 import re
 from typing import List, Dict, Any, Tuple, Set
-from ninja import Router, File, UploadedFile
+from ninja import Router, File, UploadedFile, Form
 from ninja.errors import HttpError
 from pydantic import ValidationError
 from django.db import transaction
@@ -56,6 +56,8 @@ def preview_eleves(request, file: UploadedFile = File(...)):
 
 @router.post("/commit-eleves")
 def commit_eleves(request, file: UploadedFile = File(...)):
+    # Note: Pour les élèves, l'année scolaire est moins critique car ils sont uniques par fiche
+    # mais on pourrait l'ajouter si on voulait tracer l'inscription annuelle.
     required = ["Fiche", "Code permanent", "Nom et prénom", "Statut", "Classe", "Groupe-repère"]
     df = get_cleaned_dataframe(file, required)
     valid_rows, fiches_entrantes = [], set()
@@ -97,16 +99,13 @@ def preview_results(request, file: UploadedFile = File(...)):
     return {"total_lignes": total, "lignes_valides": valides, "erreurs": erreurs}
 
 @router.post("/commit-results")
-def commit_results(request, file: UploadedFile = File(...)):
+def commit_results(request, file: UploadedFile = File(...), academic_year: str = Form(...)):
     required = ["Fiche", "Matière", "Grp", "[1]", "[2]", "Som. Final", "Description de la matière", "Nom et prénom de l'enseignant"]
     df = get_cleaned_dataframe(file, required)
     teacher_group, _ = Group.objects.get_or_create(name='Professeurs')
     existing_fiches = set(Student.objects.values_list('fiche', flat=True))
 
-    # Sets pour le tracking (Diff logic)
-    codes_cours_entrants: Set[str] = set()
-    noms_profs_entrants: Set[str] = set()
-    offres_entrantes: Set[Tuple[str, str]] = set() # (CodeCours, Grp)
+    offres_entrantes: Set[Tuple[str, str, str]] = set() # (CodeCours, Grp, Year)
 
     with transaction.atomic():
         count = 0
@@ -121,66 +120,57 @@ def commit_results(request, file: UploadedFile = File(...)):
                     code=val.course_code, 
                     defaults={'description': val.course_description, 'is_active': True}
                 )
-                codes_cours_entrants.add(course.code)
                 
                 # 2. Teacher & User Sync
                 teacher = None
                 if val.teacher_name:
-                    noms_profs_entrants.add(val.teacher_name)
                     teacher = Teacher.objects.filter(full_name=val.teacher_name).first()
                     if not teacher:
                         parts = val.teacher_name.split(' ', 1)
                         first, last = parts[0], parts[1] if len(parts)>1 else ""
                         email = f"{slugify_name(first)}.{slugify_name(last)}@csspi.qc.ca"
-                        user, _ = User.objects.update_or_create(
-                            email=email, 
-                            defaults={'first_name': first, 'last_name': last, 'is_active': True}
-                        )
-                        user.set_unusable_password()
-                        user.groups.add(teacher_group)
-                        user.save()
+                        user, created = User.objects.get_or_create(email=email, defaults={'first_name': first, 'last_name': last, 'is_active': True})
+                        if created:
+                            user.set_unusable_password()
+                            user.groups.add(teacher_group)
+                            user.save()
                         teacher = Teacher.objects.create(user=user, full_name=val.teacher_name)
                     else:
-                        # Réactiver le prof et son utilisateur s'ils étaient inactifs
                         teacher.is_active = True
                         teacher.save()
                         if teacher.user:
                             teacher.user.is_active = True
                             teacher.user.save()
 
-                # 3. Course Offering Sync
+                # 3. Course Offering Sync (Utilise l'année spécifiée)
                 offering, _ = CourseOffering.objects.update_or_create(
                     course=course, 
                     group_number=val.course_group, 
+                    academic_year=academic_year,
                     defaults={'teacher': teacher, 'is_active': True}
                 )
-                offres_entrantes.add((course.code, offering.group_number))
+                offres_entrantes.add((course.code, offering.group_number, academic_year))
 
                 # 4. Result Update
                 AcademicResult.objects.update_or_create(
-                    student_id=val.fiche, offering=offering,
-                    defaults={'step_1_grade': val.step_1_grade, 'step_2_grade': val.step_2_grade, 'final_grade': val.final_grade}
+                    student_id=val.fiche, 
+                    offering=offering,
+                    defaults={
+                        'academic_year': academic_year, # Sync dénormalisé
+                        'step_1_grade': val.step_1_grade, 
+                        'step_2_grade': val.step_2_grade, 
+                        'final_grade': val.final_grade
+                    }
                 )
                 count += 1
             except ValidationError: continue
 
         # --- LOGIQUE DE DIFF (SOFT DELETE) ---
-        # On désactive ce qui n'est plus dans le fichier résultats actuel
-        
-        # Désactiver les offres de cours disparues
-        offerings_to_deactivate = CourseOffering.objects.filter(is_active=True)
+        # Désactiver les offres de cours disparues POUR CETTE ANNÉE
+        offerings_to_deactivate = CourseOffering.objects.filter(is_active=True, academic_year=academic_year)
         for off in offerings_to_deactivate:
-            if (off.course.code, off.group_number) not in offres_entrantes:
+            if (off.course.code, off.group_number, academic_year) not in offres_entrantes:
                 off.is_active = False
                 off.save()
-
-        # Désactiver les professeurs disparus (Attention: seulement ceux qui n'ont plus aucune offre active)
-        profs_to_deactivate = Teacher.objects.filter(is_active=True).exclude(full_name__in=noms_profs_entrants)
-        for prof in profs_to_deactivate:
-            prof.is_active = False
-            prof.save()
-            if prof.user:
-                prof.user.is_active = False
-                prof.user.save()
 
     return {"success": True, "count": count}
