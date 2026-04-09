@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'accounts',
     'ingestion',
     'students',
+    'school',
 ]
 
 SITE_ID = 1
