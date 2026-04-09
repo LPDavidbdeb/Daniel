@@ -14,13 +14,15 @@ class Student(models.Model):
 class AcademicResult(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='results')
     offering = models.ForeignKey('school.CourseOffering', on_delete=models.CASCADE, related_name='results')
-    
+    academic_year = models.CharField(max_length=9, db_index=True, default="2023-2024") # Dénormalisation pour performance
+
     step_1_grade = models.IntegerField(null=True, blank=True)
     step_2_grade = models.IntegerField(null=True, blank=True)
     final_grade = models.IntegerField(null=True, blank=True)
 
     class Meta:
+        # Un élève a un seul résultat par offre de cours
         unique_together = ('student', 'offering')
 
     def __str__(self):
-        return f"{self.student.full_name} - {self.offering.course.code} ({self.final_grade or 'N/A'})"
+        return f"{self.student.full_name} - {self.offering.course.code} ({self.academic_year})"
