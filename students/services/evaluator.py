@@ -79,6 +79,8 @@ class StudentEvaluator:
 
         # 2. Variables de calcul
         total_credits_acc = cls.get_accumulated_credits(student, academic_year)
+        potentiel_minimum = total_credits_acc
+        credits_en_jeu = 0
         core_failures_count = 0
         borderline_count = 0
         total_subjects = results.count()
@@ -106,6 +108,13 @@ class StudentEvaluator:
             if is_fail and course.is_core_or_sanctioned:
                 core_failures_count += 1
 
+            # Calcul des crédits "sauvables" (entre 50 et 59%)
+            if grade is not None and 50 <= grade < 60:
+                if override not in ['FORCE_PASS', 'FORCE_RETAKE']:
+                    credits_en_jeu += course.credits
+
+        potentiel_maximum = potentiel_minimum + credits_en_jeu
+
         # 3. Détermination de la recommandation
         recommendation = "PROMOTE"
         confidence = "HIGH"
@@ -127,6 +136,9 @@ class StudentEvaluator:
             "student_id": student.fiche,
             "academic_year": academic_year,
             "total_credits_accumulated": total_credits_acc,
+            "potentiel_minimum": potentiel_minimum,
+            "potentiel_maximum": potentiel_maximum,
+            "credits_en_jeu": credits_en_jeu,
             "core_failures_count": core_failures_count,
             "borderline_count": borderline_count,
             "recommendation": recommendation,

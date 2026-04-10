@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { User, ArrowLeft, Loader2, GraduationCap, TrendingUp, AlertCircle } from 'lucide-react';
+import { User, ArrowLeft, Loader2, GraduationCap, TrendingUp, AlertCircle, ShieldCheck, ShieldAlert, AlertTriangle } from 'lucide-react';
 import client from '@/api/client';
+import { getStudentEvaluation, Evaluation } from '@/api/schoolCrud';
 
 interface Result {
   course_code: string;
@@ -44,11 +45,18 @@ const getProfileBadge = (profile: string) => {
 const StudentDetail = () => {
   const { fiche } = useParams();
   const [student, setStudent] = useState<Student | null>(null);
+  const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    client.get(`/students/${fiche}`)
-      .then(res => setStudent(res.data))
+    Promise.all([
+      client.get(`/students/${fiche}`),
+      getStudentEvaluation(fiche!)
+    ])
+      .then(([studentRes, evalRes]) => {
+        setStudent(studentRes.data);
+        setEvaluation(evalRes);
+      })
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
   }, [fiche]);
@@ -121,6 +129,82 @@ const StudentDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Bilan Prédictif */}
+      {evaluation && (
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2 px-2">
+            <TrendingUp className="h-6 w-6 text-indigo-600" />
+            <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Bilan Prédictif ({evaluation.academic_year})</h2>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Statut Card */}
+            <div className={`lg:col-span-2 rounded-3xl border p-8 flex flex-col justify-between space-y-8 ${
+              evaluation.recommendation === 'PROMOTE' ? 'bg-green-50 border-green-100' :
+              evaluation.recommendation === 'RETAIN' ? 'bg-red-50 border-red-100' : 'bg-orange-50 border-orange-100'
+            }`}>
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">Recommandation Système</p>
+                  <h3 className={`text-3xl font-black uppercase tracking-tight ${
+                    evaluation.recommendation === 'PROMOTE' ? 'text-green-900' :
+                    evaluation.recommendation === 'RETAIN' ? 'text-red-900' : 'text-orange-900'
+                  }`}>
+                    {evaluation.recommendation === 'PROMOTE' ? 'Promotion' :
+                     evaluation.recommendation === 'RETAIN' ? 'Maintien' : 'Transfert IFP'}
+                  </h3>
+                </div>
+                <div className={`p-4 rounded-2xl bg-white shadow-sm border ${
+                  evaluation.recommendation === 'PROMOTE' ? 'border-green-100' :
+                  evaluation.recommendation === 'RETAIN' ? 'border-red-100' : 'border-orange-100'
+                }`}>
+                  {evaluation.recommendation === 'PROMOTE' ? <ShieldCheck className="h-8 w-8 text-green-600" /> :
+                   evaluation.recommendation === 'RETAIN' ? <ShieldAlert className="h-8 w-8 text-red-600" /> : <AlertTriangle className="h-8 w-8 text-orange-600" />}
+                </div>
+              </div>
+
+              {(evaluation.requires_review || evaluation.confidence === 'LOW') && (
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-orange-200 flex items-start space-x-4">
+                  <AlertCircle className="h-6 w-6 text-orange-600 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="font-black text-orange-900 uppercase text-xs tracking-wider">Révision Requise</p>
+                    <p className="text-sm text-orange-800 font-medium">
+                      L'élève a {evaluation.borderline_count} note(s) dans la zone grise (45-54%). Un jugement professionnel est nécessaire.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Metrics Sidebar */}
+            <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-8 space-y-8">
+              <div>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Crédits Accumulés</p>
+                <div className="flex items-baseline space-x-2">
+                  <span className={`text-4xl font-black ${
+                    student?.level === '2' && evaluation.total_credits_accumulated < 52 ? 'text-red-600' : 'text-gray-900'
+                  }`}>
+                    {evaluation.total_credits_accumulated}
+                  </span>
+                  <span className="text-sm font-bold text-gray-400">unités</span>
+                </div>
+                {student?.level === '2' && evaluation.total_credits_accumulated < 52 && (
+                  <p className="text-[10px] font-bold text-red-500 mt-2 uppercase tracking-tight">Sous le seuil de promotion (52)</p>
+                )}
+              </div>
+
+              <div className="pt-8 border-t border-gray-50">
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Échecs (Matières de base)</p>
+                <p className={`text-4xl font-black ${evaluation.core_failures_count > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                  {evaluation.core_failures_count}
+                </p>
+                <p className="text-[10px] font-bold text-gray-400 mt-2 uppercase tracking-tight">Basé sur le seuil de 50%</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Résultats */}
       <div className="space-y-4">

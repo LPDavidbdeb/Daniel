@@ -7,7 +7,8 @@ from ninja import Router, Schema
 from ninja.errors import HttpError
 from ninja_jwt.authentication import JWTAuth
 from .models import Student, AcademicResult
-from .schemas import StudentDetailOut, GroupListOut, StudentCrudIn, StudentCrudOut
+from .schemas import StudentDetailOut, GroupListOut, StudentCrudIn, StudentCrudOut, EvaluationOut
+from .services import StudentProfilingService, StudentEvaluator
 
 router = Router(auth=JWTAuth())
 
@@ -88,6 +89,12 @@ def list_groups(request):
 def list_group_students(request, group_name: str):
     decoded_name = urllib.parse.unquote(group_name)
     return Student.objects.filter(current_group=decoded_name, is_active=True).prefetch_related('results__offering__course','results__offering__teacher')
+
+
+@router.get("/{fiche}/evaluation", response=EvaluationOut)
+def get_student_evaluation(request, fiche: int, year: Optional[str] = "2024-2025"):
+    student = get_object_or_404(Student, fiche=fiche)
+    return StudentEvaluator.evaluate_student_year(student, year)
 
 
 @router.get("/{fiche}", response=StudentDetailOut)

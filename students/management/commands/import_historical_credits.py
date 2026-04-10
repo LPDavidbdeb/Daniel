@@ -66,13 +66,12 @@ class Command(BaseCommand):
                                 stats['unknown_meq_codes'].add(meq_code)
                                 continue
 
-                            # 3. Synchronisation de l'élève
-                            student, created = Student.objects.get_or_create(
-                                fiche=int(float(fiche)),
-                                defaults={'full_name': full_name, 'is_active': True}
-                            )
-                            if created: stats['students_updated'] += 1
-
+                            # 3. Synchronisation de l'élève (SKIP si inconnu)
+                            student = Student.objects.filter(fiche=int(float(fiche))).first()
+                            if not student:
+                                stats['skipped_rows'] += 1
+                                continue
+                            
                             # 4. Création de l'offre "Pont" (HIST)
                             offering, _ = CourseOffering.objects.get_or_create(
                                 course=course,
@@ -103,8 +102,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS("\n--- Rapport d'importation historique ---"))
         self.stdout.write(f"Année traitée : {academic_year}")
         self.stdout.write(f"Résultats importés/mis à jour : {stats['results_imported']}")
-        self.stdout.write(f"Nouveaux élèves créés : {stats['students_updated']}")
-        
+
         if stats['unknown_meq_codes']:
             self.stdout.write(self.style.WARNING(f"Codes MEQ introuvables ({len(stats['unknown_meq_codes'])}) :"))
             codes = sorted(list(stats['unknown_meq_codes']))

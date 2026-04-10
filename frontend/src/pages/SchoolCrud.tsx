@@ -30,7 +30,7 @@ const SchoolCrud = () => {
 
   // Form State
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [courseForm, setCourseForm] = useState<api.Course>({
+  const [courseForm, setCourseForm] = useState<api.SchoolCoursePayload>({
     local_code: '',
     meq_code: '',
     description: '',
@@ -46,6 +46,7 @@ const SchoolCrud = () => {
     cohort_type: 'ZENITH',
     academic_year: '2025-2026',
     min_capacity: 15,
+    max_capacity: 30,
     is_confirmed: false
   });
 
@@ -56,12 +57,12 @@ const SchoolCrud = () => {
         api.getCourses(),
         api.getTeachers(),
         api.getOfferings(),
-        api.getCohorts().catch(() => ({ data: [] }))
+        api.getCohorts().catch(() => [])
       ]);
-      setCourses(cRes.data);
-      setTeachers(tRes.data);
-      setOfferings(oRes.data);
-      setCohorts(coRes.data);
+      setCourses(cRes);
+      setTeachers(tRes);
+      setOfferings(oRes);
+      setCohorts(coRes);
     } catch (err) {
       console.error("Erreur chargement:", err);
     } finally {
@@ -103,7 +104,16 @@ const SchoolCrud = () => {
 
   const handleEditCourse = (c: api.Course) => {
     setEditingId(c.id || null);
-    setCourseForm(c);
+    setCourseForm({
+      local_code: c.local_code,
+      meq_code: c.meq_code,
+      description: c.description,
+      level: c.level,
+      credits: c.credits,
+      periods: c.periods,
+      is_core_or_sanctioned: c.is_core_or_sanctioned,
+      is_active: c.is_active,
+    });
   };
 
   if (loading) return <div className="flex justify-center p-20"><Loader2 className="h-10 w-10 animate-spin text-blue-600" /></div>;

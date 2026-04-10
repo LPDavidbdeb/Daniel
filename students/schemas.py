@@ -88,3 +88,16 @@ class StudentCrudOut(ModelSchema):
     class Meta:
         model = Student
         fields = ['fiche', 'permanent_code', 'full_name', 'level', 'current_group', 'is_active']
+
+class EvaluationOut(Schema):
+    student_id: int
+    academic_year: str
+    total_credits_accumulated: int
+    potentiel_minimum: int
+    potentiel_maximum: int
+    credits_en_jeu: int
+    core_failures_count: int
+    borderline_count: int
+    recommendation: str
+    confidence: str
+    requires_review: bool
