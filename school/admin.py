@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Course, Teacher, CourseOffering, Cohort
+from .models import Course, Teacher, CourseOffering, Cohort, MeqReference
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
@@ -30,3 +30,24 @@ class CohortAdmin(admin.ModelAdmin):
     def student_count(self, obj):
         return obj.students.count()
     student_count.short_description = 'Nb Élèves'
+
+
+@admin.register(MeqReference)
+class MeqReferenceAdmin(admin.ModelAdmin):
+    list_display = ('meq_code', 'description', 'credits')
+    search_fields = ('meq_code', 'description')
+    ordering = ('meq_code',)
+    readonly_fields = ('meq_code', 'description', 'credits')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_view_permission(self, request, obj=None):
+        return True
+

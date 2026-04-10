@@ -1,10 +1,8 @@
 from django.test import TestCase
 from django.db.utils import IntegrityError
 from django.contrib.auth import get_user_model
-from django.core.management import call_command
-from django.core.management.base import CommandError
-import unittest.mock as mock
-from .models import Course, Teacher, CourseOffering, Cohort
+import json
+from .models import Course, Teacher, CourseOffering, Cohort, MeqReference
 from students.models import Student
 
 User = get_user_model()
@@ -39,3 +37,72 @@ class CourseOfferingTest(TestCase):
         CourseOffering.objects.create(course=self.course, group_number="01", academic_year="2024-2025", teacher=self.teacher)
         with self.assertRaises(IntegrityError):
             CourseOffering.objects.create(course=self.course, group_number="01", academic_year="2024-2025", teacher=self.teacher)
+
+
+class CourseMeqValidationApiTest(TestCase):
+    def setUp(self):
+        self.superuser = User.objects.create_superuser(email="admin@test.com", password="Test1234!!")
+        token_response = self.client.post(
+            "/api/token/pair",
+            data=json.dumps({"email": self.superuser.email, "password": "Test1234!!"}),
+            content_type="application/json",
+        )
+        self.assertEqual(token_response.status_code, 200)
+        self.auth_headers = {
+            "HTTP_AUTHORIZATION": f"Bearer {token_response.json()['access']}"
+        }
+
+    def test_api_rejects_invalid_meq_code_on_course_creation(self):
+        payload = {
+            "local_code": "LOC999",
+            "meq_code": "999999",
+            "description": "Cours invalide",
+            "level": 4,
+            "credits": 4,
+            "periods": 8,
+            "is_core_or_sanctioned": False,
+            "is_active": True,
+        }
+
+        response = self.client.post(
+            "/api/school/crud/courses",
+            data=json.dumps(payload),
+            content_type="application/json",
+            **self.auth_headers,
+        )
+
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(
+            response.json().get("detail"),
+            "Le code MEQ fourni n'existe pas dans le référentiel officiel du Ministère.",
+        )
+        self.assertFalse(Course.objects.filter(local_code="LOC999").exists())
+
+    def test_api_accepts_valid_meq_code_on_course_creation(self):
+        MeqReference.objects.create(
+            meq_code="132108",
+            description="Français langue d'enseignement",
+            credits=8,
+        )
+        payload = {
+            "local_code": "FRA128",
+            "meq_code": "132108",
+            "description": "Français régulier",
+            "level": 1,
+            "credits": 8,
+            "periods": 8,
+            "is_core_or_sanctioned": True,
+            "is_active": True,
+        }
+
+        response = self.client.post(
+            "/api/school/crud/courses",
+            data=json.dumps(payload),
+            content_type="application/json",
+            **self.auth_headers,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json().get("meq_code"), "132108")
+        self.assertTrue(Course.objects.filter(local_code="FRA128", meq_code="132108").exists())
+

@@ -1,0 +1,1067 @@
+[
+  {
+    "meq_code": "132100",
+    "description": "Français langue d’enseignement, 1re année fréq.(éval. modifiée): CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "132200",
+    "description": "Français langue d’enseignement, 2e année fréq.(éval. modifiée): CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "132300",
+    "description": "Français langue d’enseignement, 3e année fréq.(éval. modifiée): CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "132108",
+    "description": "Français langue d’enseignement",
+    "credits": 8
+  },
+  {
+    "meq_code": "132208",
+    "description": "Français langue d’enseignement",
+    "credits": 8
+  },
+  {
+    "meq_code": "132308",
+    "description": "Français langue d’enseignement",
+    "credits": 8
+  },
+  {
+    "meq_code": "132406",
+    "description": "Français langue d’enseignement Lecture Écriture Communication orale",
+    "credits": 6
+  },
+  {
+    "meq_code": "1324101",
+    "description": "Français langue d’enseignement Lecture Écriture Communication orale",
+    "credits": 6
+  },
+  {
+    "meq_code": "1324201",
+    "description": "Français langue d’enseignement Lecture Écriture Communication orale",
+    "credits": 6
+  },
+  {
+    "meq_code": "1324301",
+    "description": "Français langue d’enseignement Lecture Écriture Communication orale",
+    "credits": 6
+  },
+  {
+    "meq_code": "132506",
+    "description": "Français langue d’enseignement Lecture Écriture Communication orale",
+    "credits": 6
+  },
+  {
+    "meq_code": "1325101",
+    "description": "Français langue d’enseignement Lecture Écriture Communication orale",
+    "credits": 6
+  },
+  {
+    "meq_code": "1325201",
+    "description": "Français langue d’enseignement Lecture Écriture Communication orale",
+    "credits": 6
+  },
+  {
+    "meq_code": "1325301",
+    "description": "Français langue d’enseignement Lecture Écriture Communication orale",
+    "credits": 6
+  },
+  {
+    "meq_code": "141144",
+    "description": "Espagnol",
+    "credits": 4
+  },
+  {
+    "meq_code": "141244",
+    "description": "Espagnol",
+    "credits": 4
+  },
+  {
+    "meq_code": "141304",
+    "description": "Espagnol",
+    "credits": 4
+  },
+  {
+    "meq_code": "141404",
+    "description": "Espagnol langue tierce",
+    "credits": 4
+  },
+  {
+    "meq_code": "141504",
+    "description": "Espagnol langue tierce",
+    "credits": 4
+  },
+  {
+    "meq_code": "134100",
+    "description": "Anglais langue seconde, 1re année fréq.(éval. modifiée): CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "134200",
+    "description": "Anglais langue seconde, 2e année fréq.(éval. modifiée): CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "134300",
+    "description": "Anglais langue seconde, 3e année fréq.(éval. modifiée): CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "134104",
+    "description": "Anglais langue seconde, programme de base",
+    "credits": 4
+  },
+  {
+    "meq_code": "136104",
+    "description": "Anglais langue seconde, programme enrichi",
+    "credits": 4
+  },
+  {
+    "meq_code": "134204",
+    "description": "Anglais langue seconde, programme de base",
+    "credits": 4
+  },
+  {
+    "meq_code": "136204",
+    "description": "Anglais langue seconde, programme enrichi",
+    "credits": 4
+  },
+  {
+    "meq_code": "134304",
+    "description": "Anglais langue seconde, programme de base",
+    "credits": 4
+  },
+  {
+    "meq_code": "136304",
+    "description": "Anglais langue seconde, programme enrichi",
+    "credits": 4
+  },
+  {
+    "meq_code": "134404",
+    "description": "Anglais langue seconde, programme de base Interaction orale Compréhension orale et écrite Production écrite",
+    "credits": 4
+  },
+  {
+    "meq_code": "1344101",
+    "description": "Anglais langue seconde, programme de base Interaction orale Compréhension orale et écrite Production écrite",
+    "credits": 4
+  },
+  {
+    "meq_code": "1344201",
+    "description": "Anglais langue seconde, programme de base Interaction orale Compréhension orale et écrite Production écrite",
+    "credits": 4
+  },
+  {
+    "meq_code": "1344301",
+    "description": "Anglais langue seconde, programme de base Interaction orale Compréhension orale et écrite Production écrite",
+    "credits": 4
+  },
+  {
+    "meq_code": "136406",
+    "description": "Anglais langue seconde, programme enrichi Interaction orale Compréhension orale et écrite Production écrite",
+    "credits": 6
+  },
+  {
+    "meq_code": "1364301",
+    "description": "Anglais langue seconde, programme enrichi Interaction orale Compréhension orale et écrite Production écrite",
+    "credits": 6
+  },
+  {
+    "meq_code": "1364401",
+    "description": "Anglais langue seconde, programme enrichi Interaction orale Compréhension orale et écrite Production écrite",
+    "credits": 6
+  },
+  {
+    "meq_code": "1364501",
+    "description": "Anglais langue seconde, programme enrichi Interaction orale Compréhension orale et écrite Production écrite",
+    "credits": 6
+  },
+  {
+    "meq_code": "134504",
+    "description": "Anglais langue seconde, programme de base Interaction orale Compréhension orale et écrite Production écrite",
+    "credits": 4
+  },
+  {
+    "meq_code": "1345101",
+    "description": "Anglais langue seconde, programme de base Interaction orale Compréhension orale et écrite Production écrite",
+    "credits": 4
+  },
+  {
+    "meq_code": "1345201",
+    "description": "Anglais langue seconde, programme de base Interaction orale Compréhension orale et écrite Production écrite",
+    "credits": 4
+  },
+  {
+    "meq_code": "1345301",
+    "description": "Anglais langue seconde, programme de base Interaction orale Compréhension orale et écrite Production écrite",
+    "credits": 4
+  },
+  {
+    "meq_code": "136506",
+    "description": "Anglais langue seconde, programme enrichi Interaction orale Compréhension orale et écrite Production écrite",
+    "credits": 6
+  },
+  {
+    "meq_code": "1365301",
+    "description": "Anglais langue seconde, programme enrichi Interaction orale Compréhension orale et écrite Production écrite",
+    "credits": 6
+  },
+  {
+    "meq_code": "1365401",
+    "description": "Anglais langue seconde, programme enrichi Interaction orale Compréhension orale et écrite Production écrite",
+    "credits": 6
+  },
+  {
+    "meq_code": "1365501",
+    "description": "Anglais langue seconde, programme enrichi Interaction orale Compréhension orale et écrite Production écrite",
+    "credits": 6
+  },
+  {
+    "meq_code": "632106",
+    "description": "English language arts",
+    "credits": 6
+  },
+  {
+    "meq_code": "632206",
+    "description": "English language arts",
+    "credits": 6
+  },
+  {
+    "meq_code": "632306",
+    "description": "English language arts",
+    "credits": 6
+  },
+  {
+    "meq_code": "632406",
+    "description": "English language arts, secondary 4",
+    "credits": 6
+  },
+  {
+    "meq_code": "612536",
+    "description": "English language arts, secondary 5",
+    "credits": 6
+  },
+  {
+    "meq_code": "063100",
+    "description": "Mathématique, 1re année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "063200",
+    "description": "Mathématique, 2e année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "063300",
+    "description": "Mathématique, 3e année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "063126",
+    "description": "Mathématique",
+    "credits": 6
+  },
+  {
+    "meq_code": "063226",
+    "description": "Mathématique",
+    "credits": 6
+  },
+  {
+    "meq_code": "063306",
+    "description": "Mathématique",
+    "credits": 6
+  },
+  {
+    "meq_code": "063414",
+    "description": "Mathématique: séquence Culture, société et technique Résoudre une situation problème Utiliser un raisonnement mathématique",
+    "credits": 4
+  },
+  {
+    "meq_code": "0634101",
+    "description": "Mathématique: séquence Culture, société et technique Résoudre une situation problème Utiliser un raisonnement mathématique",
+    "credits": 4
+  },
+  {
+    "meq_code": "0634201",
+    "description": "Mathématique: séquence Culture, société et technique Résoudre une situation problème Utiliser un raisonnement mathématique",
+    "credits": 4
+  },
+  {
+    "meq_code": "064426",
+    "description": "Mathématique: séquence Technico-sciences Résoudre une situation problème Utiliser un raisonnement mathématique",
+    "credits": 6
+  },
+  {
+    "meq_code": "0644101",
+    "description": "Mathématique: séquence Technico-sciences Résoudre une situation problème Utiliser un raisonnement mathématique",
+    "credits": 6
+  },
+  {
+    "meq_code": "0644201",
+    "description": "Mathématique: séquence Technico-sciences Résoudre une situation problème Utiliser un raisonnement mathématique",
+    "credits": 6
+  },
+  {
+    "meq_code": "065426",
+    "description": "Mathématique: séquence Sciences naturelles Résoudre une situation problème Utiliser un raisonnement mathématique",
+    "credits": 6
+  },
+  {
+    "meq_code": "0654101",
+    "description": "Mathématique: séquence Sciences naturelles Résoudre une situation problème Utiliser un raisonnement mathématique",
+    "credits": 6
+  },
+  {
+    "meq_code": "0654201",
+    "description": "Mathématique: séquence Sciences naturelles Résoudre une situation problème Utiliser un raisonnement mathématique",
+    "credits": 6
+  },
+  {
+    "meq_code": "063504",
+    "description": "Mathématique: séquence Culture, société et technique",
+    "credits": 4
+  },
+  {
+    "meq_code": "064506",
+    "description": "Mathématique: séquence Technico-sciences",
+    "credits": 6
+  },
+  {
+    "meq_code": "065506",
+    "description": "Mathématique: séquence Sciences naturelles",
+    "credits": 6
+  },
+  {
+    "meq_code": "055100",
+    "description": "Science et technologie, 1re année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "055200",
+    "description": "Science et technologie, 2e année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "055300",
+    "description": "Science et technologie, 3e année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "055104",
+    "description": "Science et technologie",
+    "credits": 4
+  },
+  {
+    "meq_code": "055204",
+    "description": "Science et technologie",
+    "credits": 4
+  },
+  {
+    "meq_code": "055306",
+    "description": "Science et technologie",
+    "credits": 6
+  },
+  {
+    "meq_code": "057306",
+    "description": "Applications technologiques et scientifiques",
+    "credits": 6
+  },
+  {
+    "meq_code": "055444",
+    "description": "Science et technologie Théorie Pratique",
+    "credits": 4
+  },
+  {
+    "meq_code": "0554101",
+    "description": "Science et technologie Théorie Pratique",
+    "credits": 4
+  },
+  {
+    "meq_code": "0554201",
+    "description": "Science et technologie Théorie Pratique",
+    "credits": 4
+  },
+  {
+    "meq_code": "058404",
+    "description": "Science et technologie de l’environnement",
+    "credits": 4
+  },
+  {
+    "meq_code": "057416",
+    "description": "Applications technologiques et scientifiques Théorie Pratique",
+    "credits": 6
+  },
+  {
+    "meq_code": "0574101",
+    "description": "Applications technologiques et scientifiques Théorie Pratique",
+    "credits": 6
+  },
+  {
+    "meq_code": "0574201",
+    "description": "Applications technologiques et scientifiques Théorie Pratique",
+    "credits": 6
+  },
+  {
+    "meq_code": "058402",
+    "description": "Science et environnement",
+    "credits": 2
+  },
+  {
+    "meq_code": "051504",
+    "description": "Chimie",
+    "credits": 4
+  },
+  {
+    "meq_code": "053504",
+    "description": "Physique",
+    "credits": 4
+  },
+  {
+    "meq_code": "095100",
+    "description": "Géographie, 1re année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "095200",
+    "description": "Géographie, 2e année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "095300",
+    "description": "Géographie, 3e année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "095103",
+    "description": "Géographie",
+    "credits": 3
+  },
+  {
+    "meq_code": "095203",
+    "description": "Géographie",
+    "credits": 3
+  },
+  {
+    "meq_code": "087100",
+    "description": "Histoire et éducation à la citoyenneté, 1re an. fréq.(éval. modifiée): CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "087200",
+    "description": "Histoire et éducation à la citoyenneté, 2e an. fréq.(éval. modifiée): CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "087300",
+    "description": "Histoire et éducation à la citoyenneté, 3e an. fréq.(éval. modifiée): CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "087103",
+    "description": "Histoire et éducation à la citoyenneté",
+    "credits": 3
+  },
+  {
+    "meq_code": "087213",
+    "description": "Histoire et éducation à la citoyenneté",
+    "credits": 3
+  },
+  {
+    "meq_code": "085304",
+    "description": "Histoire du Québec et du Canada",
+    "credits": 4
+  },
+  {
+    "meq_code": "085404",
+    "description": "Histoire du Québec et du Canada",
+    "credits": 4
+  },
+  {
+    "meq_code": "092504",
+    "description": "Monde contemporain",
+    "credits": 4
+  },
+  {
+    "meq_code": "092502",
+    "description": "Monde contemporain",
+    "credits": 2
+  },
+  {
+    "meq_code": "092594",
+    "description": "Géographie culturelle/ option",
+    "credits": 4
+  },
+  {
+    "meq_code": "085594",
+    "description": "Histoire du 20e siècle/ option",
+    "credits": 4
+  },
+  {
+    "meq_code": "102502",
+    "description": "Projet intégrateur / option",
+    "credits": 2
+  },
+  {
+    "meq_code": "102522",
+    "description": "Éducation financière",
+    "credits": 2
+  },
+  {
+    "meq_code": "168100",
+    "description": "Arts plastiques, 1re année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "168200",
+    "description": "Arts plastiques, 2e année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "168300",
+    "description": "Arts plastiques, 3e année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "168104",
+    "description": "Arts plastiques I",
+    "credits": 4
+  },
+  {
+    "meq_code": "168204",
+    "description": "Arts plastiques II",
+    "credits": 4
+  },
+  {
+    "meq_code": "168302",
+    "description": "Arts plastiques III",
+    "credits": 2
+  },
+  {
+    "meq_code": "168402",
+    "description": "Arts plastiques IV",
+    "credits": 2
+  },
+  {
+    "meq_code": "168502",
+    "description": "Arts plastiques V",
+    "credits": 2
+  },
+  {
+    "meq_code": "168304",
+    "description": "Arts plastiques III / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "168394",
+    "description": "Arts plastiques et multimédia III / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "168404",
+    "description": "Arts plastiques IV option",
+    "credits": 4
+  },
+  {
+    "meq_code": "168494",
+    "description": "Arts plastiques et multimédia IV / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "168504",
+    "description": "Arts plastiques V / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "168594",
+    "description": "Arts plastiques et multimédia V / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "169100",
+    "description": "Musique, 1re année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "169200",
+    "description": "Musique, 2e année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "169300",
+    "description": "Musique, 3e année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "169104",
+    "description": "Musique I",
+    "credits": 4
+  },
+  {
+    "meq_code": "169204",
+    "description": "Musique II",
+    "credits": 4
+  },
+  {
+    "meq_code": "169302",
+    "description": "Musique III",
+    "credits": 2
+  },
+  {
+    "meq_code": "169402",
+    "description": "Musique IV",
+    "credits": 2
+  },
+  {
+    "meq_code": "169502",
+    "description": "Musique V",
+    "credits": 2
+  },
+  {
+    "meq_code": "169304",
+    "description": "Musique III option",
+    "credits": 4
+  },
+  {
+    "meq_code": "169394",
+    "description": "Musique et multimédia III / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "169404",
+    "description": "Musique IV / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "169494",
+    "description": "Musique et multimédia IV / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "169504",
+    "description": "Musique V option",
+    "credits": 4
+  },
+  {
+    "meq_code": "169594",
+    "description": "Musique et multimédia V / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "172100",
+    "description": "Danse, 1re année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "172200",
+    "description": "Danse, 2e année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "172300",
+    "description": "Danse, 3e année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "172104",
+    "description": "Danse I",
+    "credits": 4
+  },
+  {
+    "meq_code": "172204",
+    "description": "Danse II",
+    "credits": 4
+  },
+  {
+    "meq_code": "172302",
+    "description": "Danse III",
+    "credits": 2
+  },
+  {
+    "meq_code": "172402",
+    "description": "Danse IV",
+    "credits": 2
+  },
+  {
+    "meq_code": "172502",
+    "description": "Danse V",
+    "credits": 2
+  },
+  {
+    "meq_code": "172304",
+    "description": "Danse III / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "172394",
+    "description": "Danse et multimédia III / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "172404",
+    "description": "Danse IV option",
+    "credits": 4
+  },
+  {
+    "meq_code": "172494",
+    "description": "Danse et multimédia IV / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "172504",
+    "description": "Danse V / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "172594",
+    "description": "Danse et multimédia V / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "170100",
+    "description": "Art dramatique, 1re année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "170200",
+    "description": "Art dramatique, 2e année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "170300",
+    "description": "Art dramatique, 3e année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "170104",
+    "description": "Art dramatique I",
+    "credits": 4
+  },
+  {
+    "meq_code": "170204",
+    "description": "Art dramatique II",
+    "credits": 4
+  },
+  {
+    "meq_code": "170302",
+    "description": "Art dramatique III",
+    "credits": 2
+  },
+  {
+    "meq_code": "170402",
+    "description": "Art dramatique IV",
+    "credits": 2
+  },
+  {
+    "meq_code": "170502",
+    "description": "Art dramatique V",
+    "credits": 2
+  },
+  {
+    "meq_code": "170304",
+    "description": "Art dramatique III / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "170394",
+    "description": "Art dramatique et multimédia III / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "170404",
+    "description": "Art dramatique IV / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "170494",
+    "description": "Art dramatique et multimédia IV / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "170504",
+    "description": "Art dramatique V / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "170594",
+    "description": "Art dramatique et multimédia V / option",
+    "credits": 4
+  },
+  {
+    "meq_code": "043100",
+    "description": "Éducation physique et à la santé, 1re année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "043200",
+    "description": "Éducation physique et à la santé, 2e année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "043300",
+    "description": "Éducation physique et à la santé, 3e année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "043102",
+    "description": "Éducation physique et à la santé",
+    "credits": 2
+  },
+  {
+    "meq_code": "043202",
+    "description": "Éducation physique et à la santé",
+    "credits": 2
+  },
+  {
+    "meq_code": "043302",
+    "description": "Éducation physique et à la santé",
+    "credits": 2
+  },
+  {
+    "meq_code": "043402",
+    "description": "Éducation physique et à la santé",
+    "credits": 2
+  },
+  {
+    "meq_code": "043502",
+    "description": "Éducation physique et à la santé",
+    "credits": 2
+  },
+  {
+    "meq_code": "069100",
+    "description": "Éthique et culture religieuse, 1re année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "069200",
+    "description": "Éthique et culture religieuse, 2e année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "069300",
+    "description": "Éthique et culture religieuse, 3e année fréq.(éval. modifiée) : CPF",
+    "credits": 0
+  },
+  {
+    "meq_code": "069102",
+    "description": "Éthique et culture religieuse",
+    "credits": 2
+  },
+  {
+    "meq_code": "069202",
+    "description": "Éthique et culture religieuse",
+    "credits": 2
+  },
+  {
+    "meq_code": "069404",
+    "description": "Éthique et culture religieuse",
+    "credits": 4
+  },
+  {
+    "meq_code": "069502",
+    "description": "Éthique et culture religieuse",
+    "credits": 2
+  },
+  {
+    "meq_code": "106304",
+    "description": "Projet personnel d’orientation",
+    "credits": 4
+  },
+  {
+    "meq_code": "106404",
+    "description": "Projet personnel d’orientation",
+    "credits": 4
+  },
+  {
+    "meq_code": "198402",
+    "description": "Exploration de la formation professionnelle",
+    "credits": 2
+  },
+  {
+    "meq_code": "198404",
+    "description": "Exploration de la formation professionnelle",
+    "credits": 4
+  },
+  {
+    "meq_code": "104522",
+    "description": "Sensibilisation à l’entrepreneuriat",
+    "credits": 2
+  },
+  {
+    "meq_code": "104524",
+    "description": "Sensibilisation à l’entrepreneuriat",
+    "credits": 4
+  },
+  {
+    "meq_code": "130130",
+    "description": "Français, langue d’enseignement 1re année",
+    "credits": 0
+  },
+  {
+    "meq_code": "130230",
+    "description": "Français, langue d’enseignement 2e année",
+    "credits": 0
+  },
+  {
+    "meq_code": "130234",
+    "description": "Français, langue d’enseignement 3e année",
+    "credits": 4
+  },
+  {
+    "meq_code": "135130",
+    "description": "Anglais, langue seconde 1re année",
+    "credits": 0
+  },
+  {
+    "meq_code": "135234",
+    "description": "Anglais, langue seconde 2e année",
+    "credits": 4
+  },
+  {
+    "meq_code": "135334",
+    "description": "Anglais, langue seconde / année supplémentaire",
+    "credits": 4
+  },
+  {
+    "meq_code": "067130",
+    "description": "Mathématique 1re année",
+    "credits": 0
+  },
+  {
+    "meq_code": "067230",
+    "description": "Mathématique 2e année",
+    "credits": 0
+  },
+  {
+    "meq_code": "067234",
+    "description": "Mathématique 3e année",
+    "credits": 4
+  },
+  {
+    "meq_code": "059134",
+    "description": "Expérimentations technologiques et scientifiques 1re année",
+    "credits": 4
+  },
+  {
+    "meq_code": "059234",
+    "description": "Expérimentations technologiques et scientifiques/ année supplémentaire",
+    "credits": 4
+  },
+  {
+    "meq_code": "059334",
+    "description": "Expérimentations technologiques et scientifiques/ année supplémentaire",
+    "credits": 4
+  },
+  {
+    "meq_code": "093130",
+    "description": "Géographie, histoire et éducation à la citoyenneté / 1re année",
+    "credits": 0
+  },
+  {
+    "meq_code": "093230",
+    "description": "Géographie, histoire et éducation à la citoyenneté / 2e année",
+    "credits": 0
+  },
+  {
+    "meq_code": "093234",
+    "description": "Géographie, histoire et éducation à la citoyenneté / 3e année",
+    "credits": 4
+  },
+  {
+    "meq_code": "045130",
+    "description": "Éducation physique et à la santé / 1re année",
+    "credits": 0
+  },
+  {
+    "meq_code": "045234",
+    "description": "Éducation physique et à la santé / 2e année",
+    "credits": 4
+  },
+  {
+    "meq_code": "045334",
+    "description": "Éducation physique et à la santé / année supplémentaire",
+    "credits": 4
+  },
+  {
+    "meq_code": "103130",
+    "description": "Autonomie et participation sociale / 1re année",
+    "credits": 0
+  },
+  {
+    "meq_code": "103230",
+    "description": "Autonomie et participation sociale / 2e année",
+    "credits": 0
+  },
+  {
+    "meq_code": "103234",
+    "description": "Autonomie et participation sociale / 3e année",
+    "credits": 4
+  },
+  {
+    "meq_code": "199130",
+    "description": "Préparation au marché du travail / 1re année",
+    "credits": 0
+  },
+  {
+    "meq_code": "199230",
+    "description": "Préparation au marché du travail / 2 e année",
+    "credits": 0
+  },
+  {
+    "meq_code": "199233",
+    "description": "Préparation au marché du travail / 3 e année",
+    "credits": 3
+  },
+  {
+    "meq_code": "109134",
+    "description": "Sensibilisation au monde du travail / 1 re année",
+    "credits": 4
+  },
+  {
+    "meq_code": "109234",
+    "description": "Sensibilisation au monde du travail / année supplémentaire",
+    "credits": 4
+  },
+  {
+    "meq_code": "109334",
+    "description": "Sensibilisation au monde du travail / année supplémentaire",
+    "credits": 4
+  },
+  {
+    "meq_code": "108230",
+    "description": "Insertion professionnelle / 2 e année",
+    "credits": 0
+  },
+  {
+    "meq_code": "108234",
+    "description": "Insertion professionnelle / 3 e année",
+    "credits": 4
+  },
+  {
+    "meq_code": "132235",
+    "description": "Français, langue d’enseignement",
+    "credits": 5
+  },
+  {
+    "meq_code": "134235",
+    "description": "Anglais, langue seconde",
+    "credits": 5
+  },
+  {
+    "meq_code": "063235",
+    "description": "Mathématique",
+    "credits": 5
+  },
+  {
+    "meq_code": "199235",
+    "description": "Préparation au marché du travail",
+    "credits": 5
+  },
+  {
+    "meq_code": "196235",
+    "description": "Préparation à l’exercice du métier semi-spécialisé.",
+    "credits": 5
+  }
+]

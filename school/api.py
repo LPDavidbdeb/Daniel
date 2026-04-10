@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.errors import HttpError
 from ninja_jwt.authentication import JWTAuth
-from .models import Course, CourseOffering, Teacher
+from .models import Course, CourseOffering, Teacher, MeqReference
 from .schemas import (
     CourseCrudIn,
     CourseCrudOut,
@@ -17,12 +17,29 @@ from .schemas import (
 )
 
 router = Router(auth=JWTAuth())
+INVALID_MEQ_CODE_MESSAGE = "Le code MEQ fourni n'existe pas dans le référentiel officiel du Ministère."
 
 
 def _require_superuser(request) -> None:
     user = getattr(request, 'user', None)
     if not user or not user.is_authenticated or not user.is_superuser:
         raise HttpError(403, 'Acces refuse: superuser requis.')
+
+
+def _normalize_meq_code(meq_code: str | None) -> str | None:
+    if meq_code is None:
+        return None
+    normalized = meq_code.strip()
+    return normalized or None
+
+
+def _validate_meq_code(meq_code: str | None) -> str | None:
+    normalized = _normalize_meq_code(meq_code)
+    if not normalized:
+        return None
+    if not MeqReference.objects.filter(meq_code=normalized).exists():
+        raise HttpError(422, INVALID_MEQ_CODE_MESSAGE)
+    return normalized
 
 
 @router.get('/teachers', response=List[TeacherDetailOut])
@@ -87,10 +104,11 @@ def list_courses_crud(request):
 @router.post('/crud/courses', response=CourseCrudOut)
 def create_course_crud(request, payload: CourseCrudIn):
     _require_superuser(request)
+    valid_meq_code = _validate_meq_code(payload.meq_code)
     try:
         return Course.objects.create(
             local_code=payload.local_code,
-            meq_code=payload.meq_code,
+            meq_code=valid_meq_code,
             description=payload.description,
             level=payload.level,
             credits=payload.credits,
@@ -106,8 +124,9 @@ def create_course_crud(request, payload: CourseCrudIn):
 def update_course_crud(request, course_id: int, payload: CourseCrudIn):
     _require_superuser(request)
     course = get_object_or_404(Course, id=course_id)
+    valid_meq_code = _validate_meq_code(payload.meq_code)
     course.local_code = payload.local_code
-    course.meq_code = payload.meq_code
+    course.meq_code = valid_meq_code
     course.description = payload.description
     course.level = payload.level
     course.credits = payload.credits

@@ -1,5 +1,5 @@
 from django.db.models import Avg
-from .models import Student
+from ..models import Student
 
 class StudentProfilingService:
     @staticmethod

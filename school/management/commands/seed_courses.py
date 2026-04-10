@@ -8,7 +8,7 @@ class Command(BaseCommand):
     help = 'Peuple la table Course à partir du fichier JSON courses_seed.json à la racine'
 
     def handle(self, *args, **options):
-        # Le fichier est maintenant à la racine du projet
+        # Le fichier est à la racine du projet
         file_path = os.path.join(settings.BASE_DIR, 'courses_seed.json')
 
         if not os.path.exists(file_path):
@@ -23,17 +23,16 @@ class Command(BaseCommand):
         count = 0
         for item in courses_data:
             # Gestion des valeurs nulles pour les périodes (si null -> 0)
-            periods_val = item.get('periods')
-            if periods_val is None:
-                periods_val = 0
+            periods_val = item.get('periods') or 0
 
+            # On utilise update_or_create pour assurer l'idempotence
             course, created = Course.objects.update_or_create(
                 local_code=item['local_code'],
                 defaults={
                     'meq_code': item.get('meq_code'),
                     'description': item['description'],
                     'level': item.get('level'),
-                    'credits': item.get('credits', 0),
+                    'credits': periods_val,  # Règle d'affaires : Crédits = Périodes
                     'periods': periods_val,
                     'is_core_or_sanctioned': item.get('is_core_or_sanctioned', False),
                     'is_active': True
@@ -41,4 +40,4 @@ class Command(BaseCommand):
             )
             count += 1
 
-        self.stdout.write(self.style.SUCCESS(f"Successfully seeded {count} courses from root file"))
+        self.stdout.write(self.style.SUCCESS(f"Successfully seeded {count} courses from root file. Credits updated."))

@@ -32,6 +32,15 @@ class Course(models.Model):
     def __str__(self):
         return f"{self.local_code} - {self.description}"
 
+
+class MeqReference(models.Model):
+    meq_code = models.CharField(max_length=10, primary_key=True)
+    description = models.CharField(max_length=255)
+    credits = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.meq_code} - {self.description}"
+
 class Teacher(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, 
