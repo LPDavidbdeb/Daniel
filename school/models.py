@@ -63,3 +63,26 @@ class CourseOffering(models.Model):
 
     def __str__(self):
         return f"{self.course.local_code} ({self.group_number}) [{self.academic_year}]"
+
+class Cohort(models.Model):
+    TYPES = [
+        ('ZENITH', 'Zénith'),
+        ('IFP', 'IFP'),
+        ('DIM', 'DIM'),
+        ('ACCUEIL', 'Accueil'),
+        ('PARCOURS', 'Parcours'),
+    ]
+
+    name = models.CharField(max_length=100)
+    cohort_type = models.CharField(max_length=20, choices=TYPES)
+    academic_year = models.CharField(max_length=9, db_index=True)
+    min_capacity = models.IntegerField(default=15)
+    max_capacity = models.IntegerField(default=32)
+    is_confirmed = models.BooleanField(default=False)
+    students = models.ManyToManyField('students.Student', related_name='cohorts', blank=True)
+
+    class Meta:
+        unique_together = ('name', 'academic_year')
+
+    def __str__(self):
+        return f"Cohorte: {self.name} ({self.academic_year})"

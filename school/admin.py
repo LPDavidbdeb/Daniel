@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Course, Teacher, CourseOffering
+from .models import Course, Teacher, CourseOffering, Cohort
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
@@ -20,3 +20,13 @@ class TeacherAdmin(admin.ModelAdmin):
 class CourseOfferingAdmin(admin.ModelAdmin):
     list_display = ('course', 'group_number', 'academic_year', 'teacher', 'is_active')
     list_filter = ('academic_year', 'is_active')
+
+@admin.register(Cohort)
+class CohortAdmin(admin.ModelAdmin):
+    list_display = ('name', 'cohort_type', 'academic_year', 'student_count', 'is_confirmed')
+    list_filter = ('cohort_type', 'academic_year', 'is_confirmed')
+    search_fields = ('name',)
+
+    def student_count(self, obj):
+        return obj.students.count()
+    student_count.short_description = 'Nb Élèves'
