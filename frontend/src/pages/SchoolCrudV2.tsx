@@ -38,6 +38,10 @@ const initialCourseForm = {
   credits: '0',
   periods: '0',
   is_core_or_sanctioned: false,
+  stream: 'REGULAR' as 'REGULAR' | 'ZENITH' | 'IFP' | 'ACCUEIL',
+  category: 'CORE' as 'CORE' | 'PARCOURS' | 'OPTION',
+  cycle: 'PREMIER' as 'PREMIER' | 'DEUXIEME' | 'ACCUEIL',
+  group_type: 'CLOSED' as 'OPEN' | 'CLOSED',
   is_active: true,
 };
 
@@ -200,6 +204,10 @@ export default function SchoolCrudV2() {
         credits: Number(courseForm.credits),
         periods: Number(courseForm.periods),
         is_core_or_sanctioned: courseForm.is_core_or_sanctioned,
+        stream: courseForm.stream,
+        category: courseForm.category,
+        cycle: courseForm.cycle,
+        group_type: courseForm.group_type,
         is_active: courseForm.is_active,
       };
       if (editingCourseId === null) {
@@ -393,6 +401,42 @@ export default function SchoolCrudV2() {
               <Input label="Périodes" type="number" value={courseForm.periods} onChange={(value) => setCourseForm((prev) => ({ ...prev, periods: value }))} min={0} required />
               <div />
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Filière</label>
+                <select value={courseForm.stream} onChange={(e) => setCourseForm((prev) => ({ ...prev, stream: e.target.value as typeof prev.stream }))} className="w-full rounded-lg border border-gray-300 px-3 py-2">
+                  <option value="REGULAR">Régulier</option>
+                  <option value="ZENITH">Zénith</option>
+                  <option value="IFP">IFP</option>
+                  <option value="ACCUEIL">Accueil ILSS</option>
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Catégorie</label>
+                <select value={courseForm.category} onChange={(e) => setCourseForm((prev) => ({ ...prev, category: e.target.value as typeof prev.category }))} className="w-full rounded-lg border border-gray-300 px-3 py-2">
+                  <option value="CORE">Matière de base</option>
+                  <option value="PARCOURS">Parcours</option>
+                  <option value="OPTION">Option</option>
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Cycle</label>
+                <select value={courseForm.cycle} onChange={(e) => setCourseForm((prev) => ({ ...prev, cycle: e.target.value as typeof prev.cycle }))} className="w-full rounded-lg border border-gray-300 px-3 py-2">
+                  <option value="PREMIER">Premier cycle</option>
+                  <option value="DEUXIEME">Deuxième cycle</option>
+                  <option value="ACCUEIL">Accueil</option>
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Type de groupe</label>
+                <select value={courseForm.group_type} onChange={(e) => setCourseForm((prev) => ({ ...prev, group_type: e.target.value as typeof prev.group_type }))} className="w-full rounded-lg border border-gray-300 px-3 py-2">
+                  <option value="CLOSED">Fermé</option>
+                  <option value="OPEN">Ouvert</option>
+                </select>
+              </div>
+            </div>
             <Checkbox label="Matière de base / sanctionnée" checked={courseForm.is_core_or_sanctioned} onChange={(checked) => setCourseForm((prev) => ({ ...prev, is_core_or_sanctioned: checked }))} />
             <Checkbox label="Actif" checked={courseForm.is_active} onChange={(checked) => setCourseForm((prev) => ({ ...prev, is_active: checked }))} />
             <ActionRow saving={saving} editing={editingCourseId !== null} onCancel={resetCourseForm} />
@@ -434,6 +478,10 @@ export default function SchoolCrudV2() {
                               credits: String(course.credits),
                               periods: String(course.periods),
                               is_core_or_sanctioned: course.is_core_or_sanctioned,
+                              stream: course.stream,
+                              category: course.category,
+                              cycle: course.cycle,
+                              group_type: course.group_type,
                               is_active: course.is_active,
                             });
                           }}

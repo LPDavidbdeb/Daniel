@@ -10,6 +10,7 @@ import StudentDetail from '@/pages/StudentDetail';
 import TeacherList from '@/pages/TeacherList';
 import TeacherDetail from '@/pages/TeacherDetail';
 import StudentStats from '@/pages/StudentStats';
+import ClassificationDetail from '@/pages/ClassificationDetail';
 import AdminUsers from '@/pages/AdminUsers';
 import SchoolCrud from '@/pages/SchoolCrud';
 import Navbar from '@/components/Navbar';
@@ -80,6 +81,7 @@ function App() {
         <Route path="/enseignants" element={<ProtectedRoute><Layout><TeacherList /></Layout></ProtectedRoute>} />
         <Route path="/enseignants/:teacherId" element={<ProtectedRoute><Layout><TeacherDetail /></Layout></ProtectedRoute>} />
         <Route path="/stats" element={<ProtectedRoute><Layout><StudentStats /></Layout></ProtectedRoute>} />
+        <Route path="/stats/cours/:level/:courseCode/:classification" element={<ProtectedRoute><Layout><ClassificationDetail /></Layout></ProtectedRoute>} />
         <Route
           path="/ecole/crud"
           element={

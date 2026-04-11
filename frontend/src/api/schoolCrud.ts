@@ -10,6 +10,10 @@ export interface Course {
   credits: number;
   periods: number;
   is_core_or_sanctioned: boolean;
+  stream: 'REGULAR' | 'ZENITH' | 'IFP' | 'ACCUEIL';
+  category: 'CORE' | 'PARCOURS' | 'OPTION';
+  cycle: 'PREMIER' | 'DEUXIEME' | 'ACCUEIL';
+  group_type: 'OPEN' | 'CLOSED';
   is_active: boolean;
 }
 

@@ -27,8 +27,8 @@ describe('SchoolCrudV2', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(schoolCrud.listCourses).mockResolvedValue([
-      { id: 1, local_code: 'MAT101', meq_code: null, description: 'Mathématiques', level: 1, credits: 4, periods: 4, is_core_or_sanctioned: true, is_active: true },
-      { id: 2, local_code: 'FRA201', meq_code: 'FRA-2', description: 'Français', level: 2, credits: 4, periods: 5, is_core_or_sanctioned: true, is_active: true },
+      { id: 1, local_code: 'MAT101', meq_code: null, description: 'Mathématiques', level: 1, credits: 4, periods: 4, is_core_or_sanctioned: true, stream: 'REGULAR' as const, category: 'CORE' as const, cycle: 'PREMIER' as const, group_type: 'CLOSED' as const, is_active: true },
+      { id: 2, local_code: 'FRA201', meq_code: 'FRA-2', description: 'Français', level: 2, credits: 4, periods: 5, is_core_or_sanctioned: true, stream: 'REGULAR' as const, category: 'CORE' as const, cycle: 'PREMIER' as const, group_type: 'CLOSED' as const, is_active: true },
     ]);
     vi.mocked(schoolCrud.listTeachers).mockResolvedValue([
       { id: 10, user: 99, user_email: 'teach@example.com', full_name: 'Mme Alpha', is_active: true },

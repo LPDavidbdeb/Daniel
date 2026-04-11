@@ -27,6 +27,28 @@ class AcademicResult(models.Model):
     def __str__(self):
         return f"{self.student.full_name} - {self.offering.course.local_code} ({self.academic_year})"
 
+class SummerSchoolEnrollment(models.Model):
+    """One summer school course per student per academic year."""
+    student = models.ForeignKey(
+        Student, on_delete=models.CASCADE, related_name='summer_school_enrollments'
+    )
+    course = models.ForeignKey(
+        'school.Course', on_delete=models.CASCADE, related_name='summer_school_enrollments'
+    )
+    academic_year = models.CharField(max_length=9, db_index=True)
+    enrolled_at = models.DateTimeField(auto_now_add=True)
+    enrolled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='summer_school_enrollments'
+    )
+
+    class Meta:
+        unique_together = ('student', 'academic_year')  # one course per student per year
+
+    def __str__(self):
+        return f"Été: {self.student.full_name} → {self.course.local_code} ({self.academic_year})"
+
+
 class StudentPromotionOverride(models.Model):
     TYPES = [
         ('FORCE_PASS', 'Passage Forcé'),

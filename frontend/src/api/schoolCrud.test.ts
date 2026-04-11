@@ -53,6 +53,10 @@ describe('schoolCrud api', () => {
       credits: 4,
       periods: 4,
       is_core_or_sanctioned: true,
+      stream: 'REGULAR',
+      category: 'CORE',
+      cycle: 'DEUXIEME',
+      group_type: 'OPEN',
       is_active: true,
     });
 

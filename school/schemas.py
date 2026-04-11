@@ -10,12 +10,16 @@ class CourseCrudIn(Schema):
     credits: int = 0
     periods: int = 0
     is_core_or_sanctioned: bool = False
+    stream: str = 'REGULAR'
+    category: str = 'CORE'
+    cycle: str = 'PREMIER'
+    group_type: str = 'CLOSED'
     is_active: bool = True
 
 class CourseCrudOut(ModelSchema):
     class Meta:
         model = Course
-        fields = ['id', 'local_code', 'meq_code', 'description', 'level', 'credits', 'periods', 'is_core_or_sanctioned', 'is_active']
+        fields = ['id', 'local_code', 'meq_code', 'description', 'level', 'credits', 'periods', 'is_core_or_sanctioned', 'stream', 'category', 'cycle', 'group_type', 'is_active']
 
 class TeacherCrudIn(Schema):
     user: int  # ID

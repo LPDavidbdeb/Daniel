@@ -38,6 +38,10 @@ const SchoolCrud = () => {
     credits: 0,
     periods: 0,
     is_core_or_sanctioned: false,
+    stream: 'REGULAR',
+    category: 'CORE',
+    cycle: 'PREMIER',
+    group_type: 'CLOSED',
     is_active: true
   });
 
@@ -95,7 +99,7 @@ const SchoolCrud = () => {
       if (editingId) await api.updateCourse(editingId, courseForm);
       else await api.createCourse(courseForm);
       setEditingId(null);
-      setCourseForm({ local_code: '', meq_code: '', description: '', level: 1, credits: 0, periods: 0, is_core_or_sanctioned: false, is_active: true });
+      setCourseForm({ local_code: '', meq_code: '', description: '', level: 1, credits: 0, periods: 0, is_core_or_sanctioned: false, stream: 'REGULAR', category: 'CORE', cycle: 'PREMIER', group_type: 'CLOSED', is_active: true });
       fetchData();
     } catch (err: any) {
       alert(err.response?.data?.detail || "Erreur d'enregistrement.");
@@ -112,6 +116,10 @@ const SchoolCrud = () => {
       credits: c.credits,
       periods: c.periods,
       is_core_or_sanctioned: c.is_core_or_sanctioned,
+      stream: c.stream,
+      category: c.category,
+      cycle: c.cycle,
+      group_type: c.group_type,
       is_active: c.is_active,
     });
   };

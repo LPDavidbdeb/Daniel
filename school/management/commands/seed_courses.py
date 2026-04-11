@@ -9,7 +9,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Le fichier est à la racine du projet
-        file_path = os.path.join(settings.BASE_DIR, 'courses_seed.json')
+        file_path = os.path.join(settings.BASE_DIR, 'school', 'fixtures', 'courses_seed.json')
 
         if not os.path.exists(file_path):
             raise CommandError(f"Le fichier de données est introuvable à la racine : {file_path}")
@@ -35,6 +35,10 @@ class Command(BaseCommand):
                     'credits': periods_val,  # Règle d'affaires : Crédits = Périodes
                     'periods': periods_val,
                     'is_core_or_sanctioned': item.get('is_core_or_sanctioned', False),
+                    'stream': item.get('stream', 'REGULAR'),
+                    'category': item.get('category', 'CORE'),
+                    'cycle': item.get('cycle', 'PREMIER'),
+                    'group_type': item.get('group_type', 'CLOSED'),
                     'is_active': True
                 }
             )

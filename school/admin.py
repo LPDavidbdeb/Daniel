@@ -3,8 +3,8 @@ from .models import Course, Teacher, CourseOffering, Cohort, MeqReference
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ('local_code', 'meq_code', 'description', 'level', 'credits', 'is_core_or_sanctioned', 'is_active')
-    list_filter = ('level', 'is_core_or_sanctioned', 'is_active')
+    list_display = ('local_code', 'meq_code', 'description', 'level', 'stream', 'category', 'cycle', 'group_type', 'credits', 'is_core_or_sanctioned', 'is_active')
+    list_filter = ('level', 'stream', 'category', 'cycle', 'group_type', 'is_core_or_sanctioned', 'is_active')
     search_fields = ('local_code', 'meq_code', 'description')
 
 @admin.register(Teacher)

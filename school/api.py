@@ -114,6 +114,10 @@ def create_course_crud(request, payload: CourseCrudIn):
             credits=payload.credits,
             periods=payload.periods,
             is_core_or_sanctioned=payload.is_core_or_sanctioned,
+            stream=payload.stream,
+            category=payload.category,
+            cycle=payload.cycle,
+            group_type=payload.group_type,
             is_active=payload.is_active,
         )
     except IntegrityError:
@@ -132,6 +136,10 @@ def update_course_crud(request, course_id: int, payload: CourseCrudIn):
     course.credits = payload.credits
     course.periods = payload.periods
     course.is_core_or_sanctioned = payload.is_core_or_sanctioned
+    course.stream = payload.stream
+    course.category = payload.category
+    course.cycle = payload.cycle
+    course.group_type = payload.group_type
     course.is_active = payload.is_active
     try:
         course.save()

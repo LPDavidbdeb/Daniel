@@ -123,15 +123,13 @@ def commit_results(request, file: UploadedFile = File(...), academic_year: str =
                     import_errors.append(f"Ligne {index+2} : Code MEQ {val.course_code} introuvable dans le catalogue des cours. Ligne ignorée.")
                     continue
                 
-                # Heuristique de désambiguïsation (Zénith vs Régulier)
+                # Désambiguïsation Zénith vs Régulier via le champ stream
                 course = None
                 if course_matches.count() > 1:
                     if 'Z' in val.course_group.upper():
-                        # On privilégie le cours dont le code local contient Z
-                        course = course_matches.filter(local_code__icontains='Z').first() or course_matches.first()
+                        course = course_matches.filter(stream='ZENITH').first() or course_matches.first()
                     else:
-                        # On exclut le cours Z
-                        course = course_matches.exclude(local_code__icontains='Z').first() or course_matches.first()
+                        course = course_matches.exclude(stream='ZENITH').first() or course_matches.first()
                 else:
                     course = course_matches.first()
 

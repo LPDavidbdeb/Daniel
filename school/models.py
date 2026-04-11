@@ -2,21 +2,42 @@ from django.db import models
 from django.conf import settings
 
 class Course(models.Model):
+    STREAM_CHOICES = [
+        ('REGULAR', 'Régulier'),
+        ('ZENITH', 'Zénith'),
+        ('IFP', 'IFP'),
+        ('ACCUEIL', 'Accueil ILSS'),
+    ]
+    CATEGORY_CHOICES = [
+        ('CORE', 'Matière de base'),
+        ('PARCOURS', 'Parcours'),
+        ('OPTION', 'Option'),
+    ]
+    CYCLE_CHOICES = [
+        ('PREMIER', 'Premier cycle'),
+        ('DEUXIEME', 'Deuxième cycle'),
+        ('ACCUEIL', 'Accueil'),
+    ]
+    GROUP_TYPE_CHOICES = [
+        ('OPEN', 'Groupe ouvert'),
+        ('CLOSED', 'Groupe fermé'),
+    ]
+
     local_code = models.CharField(max_length=20, unique=True, db_index=True)
     meq_code = models.CharField(
-        max_length=20, 
-        null=True, 
+        max_length=20,
+        null=True,
         blank=True,
         help_text="Code officiel du Ministère (MEQ)"
     )
     description = models.CharField(max_length=255)
     level = models.IntegerField(
-        null=True, 
-        blank=True, 
-        help_text="Année du secondaire (1 à 5)"
+         null=True,
+        blank=True,
+        help_text="Année du secondaire (0=Accueil, 1 à 5)"
     )
     credits = models.IntegerField(
-        default=0, 
+        default=0,
         help_text="Nombre de crédits associés au cours"
     )
     periods = models.IntegerField(
@@ -24,8 +45,32 @@ class Course(models.Model):
         help_text="Nombre de périodes dans l'horaire"
     )
     is_core_or_sanctioned = models.BooleanField(
-        default=False, 
+        default=False,
         help_text="Vrai pour les matières de base bloquantes comme le français ou les mathématiques, ou les matières sanctionnées par le MEQ"
+    )
+    stream = models.CharField(
+        max_length=10,
+        choices=STREAM_CHOICES,
+        default='REGULAR',
+        help_text="Filière du cours (Régulier, Zénith, IFP, Accueil)"
+    )
+    category = models.CharField(
+        max_length=10,
+        choices=CATEGORY_CHOICES,
+        default='CORE',
+        help_text="Catégorie pédagogique du cours"
+    )
+    cycle = models.CharField(
+        max_length=10,
+        choices=CYCLE_CHOICES,
+        default='PREMIER',
+        help_text="Cycle scolaire (Premier, Deuxième, Accueil)"
+    )
+    group_type = models.CharField(
+        max_length=10,
+        choices=GROUP_TYPE_CHOICES,
+        default='CLOSED',
+        help_text="Type de groupe (fermé ou ouvert)"
     )
     is_active = models.BooleanField(default=True)
 
