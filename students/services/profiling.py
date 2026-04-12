@@ -20,6 +20,15 @@ class StudentProfilingService:
         return list(failed_results.values_list('offering__course__local_code', flat=True))
 
     @staticmethod
+    def count_sanctioned_passed(student: Student, academic_year: str = "2025-2026") -> int:
+        """Nombre de cours de base/sanctionnés réussis (≥ 60) pour l'année donnée."""
+        return student.results.filter(
+            academic_year=academic_year,
+            final_grade__gte=60,
+            offering__course__is_core_or_sanctioned=True,
+        ).count()
+
+    @staticmethod
     def determine_academic_profile(student: Student) -> str:
         """Détermine le profil académique de l'élève."""
         average = StudentProfilingService.calculate_student_average(student)

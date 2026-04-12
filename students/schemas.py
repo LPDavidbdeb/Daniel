@@ -45,6 +45,7 @@ class StudentOut(ModelSchema):
     average: Optional[float] = None
     failed_courses_count: int = 0
     academic_profile: str = "Non évalué"
+    sanctioned_passed_count: int = 0
 
     class Meta:
         model = Student
@@ -61,6 +62,10 @@ class StudentOut(ModelSchema):
     @staticmethod
     def resolve_academic_profile(obj):
         return StudentProfilingService.determine_academic_profile(obj)
+
+    @staticmethod
+    def resolve_sanctioned_passed_count(obj):
+        return StudentProfilingService.count_sanctioned_passed(obj)
 
 class StudentDetailOut(StudentOut):
     results: List[AcademicResultOut] = []

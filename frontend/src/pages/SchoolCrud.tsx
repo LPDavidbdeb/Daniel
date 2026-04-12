@@ -30,6 +30,8 @@ const SchoolCrud = () => {
 
   // Form State
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [levelFilter, setLevelFilter] = useState<number | null>(null);
+
   const [courseForm, setCourseForm] = useState<api.SchoolCoursePayload>({
     local_code: '',
     meq_code: '',
@@ -78,12 +80,16 @@ const SchoolCrud = () => {
 
   // --- FILTRAGE ---
   const filteredCourses = useMemo(() => {
-    return courses.filter(c => 
-      c.local_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (c.meq_code && c.meq_code.includes(searchTerm))
-    );
-  }, [courses, searchTerm]);
+    return courses.filter(c => {
+      if (levelFilter !== null && c.level !== levelFilter) return false;
+      if (!searchTerm) return true;
+      return (
+        c.local_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (c.meq_code && c.meq_code.includes(searchTerm))
+      );
+    });
+  }, [courses, searchTerm, levelFilter]);
 
   const filteredCohorts = useMemo(() => {
     return cohorts.filter(c => 
@@ -164,7 +170,7 @@ const SchoolCrud = () => {
       {/* --- TAB COURSES --- */}
       {activeTab === 'courses' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm sticky top-24">
+          <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm sticky top-24 overflow-y-auto max-h-[calc(100vh-200px)]">
             <h2 className="text-lg font-black uppercase mb-6 flex items-center gap-2">
               {editingId ? <Pencil className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
               {editingId ? "Modifier le cours" : "Ajouter un cours"}
@@ -210,6 +216,25 @@ const SchoolCrud = () => {
           </div>
 
           <div className="lg:col-span-2 bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col max-h-[calc(100vh-200px)]">
+            {/* Level filter tabs */}
+            <div className="flex items-center gap-1 px-4 pt-3 pb-2 border-b border-gray-100 shrink-0">
+              {([null, 1, 2, 3, 4, 5] as const).map(lvl => (
+                <button
+                  key={lvl ?? 'all'}
+                  onClick={() => setLevelFilter(lvl)}
+                  className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase transition-all ${
+                    levelFilter === lvl
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {lvl === null ? 'Tous' : `Sec ${lvl}`}
+                </button>
+              ))}
+              <span className="ml-auto text-[10px] font-bold text-gray-400">
+                {filteredCourses.length} cours
+              </span>
+            </div>
             <div className="overflow-auto">
               <table className="w-full text-left border-collapse">
                 <thead className="sticky top-0 bg-gray-50 z-10 border-b border-gray-200">
@@ -217,7 +242,8 @@ const SchoolCrud = () => {
                     <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Codes (L/M)</th>
                     <th className="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Description</th>
                     <th className="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Niv/Pér</th>
-                    <th className="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Base</th>
+                    <th className="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Type</th>
+                    <th className="px-6 py-4 text-center text-[10px] font-black text-gray-400 uppercase tracking-widest">Base/Sanc</th>
                     <th className="px-6 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Actions</th>
                   </tr>
                 </thead>
@@ -235,7 +261,19 @@ const SchoolCrud = () => {
                         <span className="text-xs font-bold text-gray-500">{c.periods}p</span>
                       </td>
                       <td className="px-6 py-4 text-center">
-                        {c.is_core_or_sanctioned && <CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" />}
+                        <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase ${
+                          c.group_type === 'OPEN'
+                            ? 'bg-purple-50 text-purple-600 border border-purple-200'
+                            : 'bg-gray-100 text-gray-500 border border-gray-200'
+                        }`}>
+                          {c.group_type === 'OPEN' ? 'Ouvert' : 'Fermé'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        {c.is_core_or_sanctioned
+                          ? <CheckCircle2 className="h-4 w-4 text-green-500 mx-auto" title="Base / Sanctionné MEQ" />
+                          : <span className="text-gray-200 text-xs font-bold">—</span>
+                        }
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-1">
