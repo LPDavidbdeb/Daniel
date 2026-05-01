@@ -1,7 +1,8 @@
 from typing import List, Dict, Any, Optional
 import urllib.parse
 from django.db import IntegrityError
-from django.db.models import Count, Q
+from django.db.models import Count, Q, OuterRef, Subquery, Case, When, Value, CharField
+from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404
 from ninja import Router, Schema
 from ninja.errors import HttpError
@@ -11,6 +12,7 @@ from .schemas import (
     StudentDetailOut, GroupListOut, StudentCrudIn, StudentCrudOut, EvaluationOut,
     LevelProjectionOut, GroupProjectionOut, StudentProjectionOut, ClassifiedCourseOut,
     CourseProjectionOut, CourseStudentOut, SummerSchoolEnrollIn, SummerSchoolEnrollOut,
+    TriageMatrixItem, TriageDrilldownOut,
 )
 from .services import StudentProfilingService, StudentEvaluator
 from .services.classifier import CreditClassifierService, PromotionOutcome
@@ -79,6 +81,102 @@ def _classify_students_for_level(students, academic_year: str, level: str):
             certain_retain += 1
 
     return certain_promote, borderline, certain_retain, criteria_stub
+
+
+@router.get("/triage-matrix/{academic_year}/{level}", response=List[TriageMatrixItem])
+def get_triage_matrix(request, academic_year: str, level: str):
+    """
+    Fetch all student records for a given level and year.
+    Aggregate counts of students grouped by (total_failures, core_failures).
+    """
+    students = Student.objects.filter(level=level, is_active=True)
+
+    # Subqueries to count failures per student without cross-join inflation
+    total_fails_subquery = AcademicResult.objects.filter(
+        student=OuterRef('pk'),
+        academic_year=academic_year,
+        final_grade__lt=60
+    ).values('student').annotate(c=Count('*')).values('c')
+
+    core_fails_subquery = AcademicResult.objects.filter(
+        student=OuterRef('pk'),
+        academic_year=academic_year,
+        final_grade__lt=60,
+        offering__course__is_core_or_sanctioned=True
+    ).values('student').annotate(c=Count('*')).values('c')
+
+    student_stats = students.annotate(
+        total_fail=Coalesce(Subquery(total_fails_subquery), 0),
+        core_fail=Coalesce(Subquery(core_fails_subquery), 0)
+    ).values('total_fail', 'core_fail').annotate(student_count=Count('fiche')).order_by('total_fail', 'core_fail')
+
+    return [
+        TriageMatrixItem(
+            total_failures=item['total_fail'],
+            core_failures=item['core_fail'],
+            student_count=item['student_count']
+        )
+        for item in student_stats
+    ]
+
+
+@router.get("/triage-drilldown/{academic_year}/{level}", response=List[TriageDrilldownOut])
+def get_triage_drilldown(request, academic_year: str, level: str, total_fails: int, core_fails: int):
+    """
+    For a specific bucket (total_fails, core_fails), return the distribution of failing grades per subject.
+    """
+    students = Student.objects.filter(level=level, is_active=True)
+
+    # Re-use subquery logic to identify the exact students in the bucket
+    total_fails_subquery = AcademicResult.objects.filter(
+        student=OuterRef('pk'),
+        academic_year=academic_year,
+        final_grade__lt=60
+    ).values('student').annotate(c=Count('*')).values('c')
+
+    core_fails_subquery = AcademicResult.objects.filter(
+        student=OuterRef('pk'),
+        academic_year=academic_year,
+        final_grade__lt=60,
+        offering__course__is_core_or_sanctioned=True
+    ).values('student').annotate(c=Count('*')).values('c')
+
+    students_in_bucket = students.annotate(
+        total_fail=Coalesce(Subquery(total_fails_subquery), 0),
+        core_fail=Coalesce(Subquery(core_fails_subquery), 0)
+    ).filter(total_fail=total_fails, core_fail=core_fails)
+
+    student_ids = students_in_bucket.values_list('fiche', flat=True)
+
+    # 2. Retrieve all failing results for these students
+    failing_results = AcademicResult.objects.filter(
+        student_id__in=student_ids,
+        academic_year=academic_year,
+        final_grade__lt=60
+    ).select_related('offering__course')
+
+    # 3. Aggregate by subject and grade band
+    aggregates = failing_results.annotate(
+        band=Case(
+            When(final_grade__lt=45, then=Value('Below 45')),
+            When(final_grade__lt=50, then=Value('45-49')),
+            When(final_grade__lt=55, then=Value('50-54')),
+            When(final_grade__lt=60, then=Value('55-59')),
+            default=Value('Unknown'),
+            output_field=CharField(),
+        )
+    ).values('offering__course__description', 'band').annotate(
+        count=Count('id')
+    ).order_by('offering__course__description', 'band')
+
+    return [
+        TriageDrilldownOut(
+            subject=item['offering__course__description'],
+            grade_band=item['band'],
+            failure_count=item['count']
+        )
+        for item in aggregates
+    ]
 
 
 @router.get("/projection/summary", response=List[LevelProjectionOut])
@@ -255,8 +353,21 @@ def get_projection_course_students(request, level: str, course_code: str, year: 
         .select_related('student', 'offering__course')
         .order_by('student__full_name')
     )
-    # Bulk-fetch enrollments for all students in one query
+    
     student_ids = [r.student_id for r in results]
+    
+    # Bulk-fetch all results for these students in this year to avoid N+1
+    all_student_results = (
+        AcademicResult.objects
+        .filter(student_id__in=student_ids, academic_year=year, final_grade__isnull=False)
+        .select_related('offering__course')
+    )
+    
+    results_by_student = {}
+    for ar in all_student_results:
+        results_by_student.setdefault(ar.student_id, []).append(ar)
+
+    # Bulk-fetch enrollments
     enrollments = {
         e.student_id: e
         for e in SummerSchoolEnrollment.objects.filter(
@@ -267,16 +378,11 @@ def get_projection_course_students(request, level: str, course_code: str, year: 
 
     rows = []
     for r in results:
-        all_results = list(
-            AcademicResult.objects.filter(
-                student=r.student,
-                academic_year=year,
-                final_grade__isnull=False,
-            ).select_related('offering__course')
-        )
-        below_60 = [a for a in all_results if a.final_grade < 60]
-        below_50 = [a for a in all_results if a.final_grade < 50]
+        student_all_res = results_by_student.get(r.student_id, [])
+        below_60 = [a for a in student_all_res if a.final_grade < 60]
+        below_50 = [a for a in student_all_res if a.final_grade < 50]
         enroll = enrollments.get(r.student_id)
+        
         rows.append(CourseStudentOut(
             fiche=r.student.fiche,
             full_name=r.student.full_name,

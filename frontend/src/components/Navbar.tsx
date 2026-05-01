@@ -43,6 +43,10 @@ const Navbar = () => {
                 Statistiques
               </Link>
 
+              <Link to="/stats/triage" className={`flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/stats/triage') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'}`}>
+                Triage
+              </Link>
+
               <Link to="/ecole/crud" className={`flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${location.pathname.startsWith('/ecole') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'}`}>
                 <Settings className="h-4 w-4" />
                 CRUD Ecole

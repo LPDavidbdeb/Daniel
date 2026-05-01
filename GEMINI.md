@@ -26,7 +26,7 @@ If a request is incomplete: → Propose a structure and options.
 
 ## 3. Tech Stack (STRICT — NO DEVIATION)
 ### Backend
-* Python 3.x, Django 4.2
+* Python 3.x, Django 6.0.4
 * API: Django Ninja (MANDATORY — DRF FORBIDDEN)
 * Auth: ninja-jwt + django-allauth (Email-based, no username)
 * Async: Celery

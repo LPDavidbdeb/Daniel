@@ -14,7 +14,13 @@ class Student(models.Model):
 
 class AcademicResult(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='results')
-    offering = models.ForeignKey('school.CourseOffering', on_delete=models.CASCADE, related_name='results')
+    offering = models.ForeignKey(
+        'school.CourseOffering', 
+        on_delete=models.CASCADE, 
+        related_name='results',
+        null=True,
+        blank=True
+    )
     academic_year = models.CharField(max_length=9, db_index=True, default="2025-2026")
 
     step_1_grade = models.IntegerField(null=True, blank=True)
@@ -23,6 +29,10 @@ class AcademicResult(models.Model):
 
     class Meta:
         unique_together = ('student', 'offering')
+        indexes = [
+            models.Index(fields=['student', 'academic_year']),
+            models.Index(fields=['academic_year']),
+        ]
 
     def __str__(self):
         return f"{self.student.full_name} - {self.offering.course.local_code} ({self.academic_year})"

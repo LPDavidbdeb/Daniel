@@ -190,3 +190,15 @@ class EvaluationOut(Schema):
     recommendation: str
     confidence: str
     requires_review: bool
+
+
+class TriageMatrixItem(Schema):
+    total_failures: int
+    core_failures: int
+    student_count: int
+
+
+class TriageDrilldownOut(Schema):
+    subject: str
+    grade_band: str
+    failure_count: int
