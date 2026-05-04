@@ -54,6 +54,34 @@ class StudentState(models.Model):
     def __str__(self):
         return f"État: {self.student.full_name} ({self.academic_year})"
 
+class StateTransitionLog(models.Model):
+    student = models.ForeignKey(
+        Student, 
+        on_delete=models.CASCADE, 
+        related_name='transition_logs'
+    )
+    from_state = models.CharField(max_length=50, null=True, blank=True)
+    to_state = models.CharField(max_length=50)
+    event_name = models.CharField(max_length=100)
+    actor = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='state_transitions'
+    )
+    timestamp = models.DateTimeField(auto_now_add=True)
+    reason_payload = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['student', '-timestamp']),
+        ]
+
+    def __str__(self):
+        return f"Log: {self.student.full_name} ({self.from_state} -> {self.to_state}) at {self.timestamp}"
+
 class AcademicResult(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='results')
     offering = models.ForeignKey(

@@ -19,6 +19,10 @@ This feature defines the core state enumerations and policy constants for the Ap
     - **Reason Codes**: A `JSONField` is used to store flexible metadata and audit trail information about decision logic.
     - **Version**: Included for future optimistic concurrency and audit tracing.
     - **Workflow States**: Uses the enums defined in US1.1 to drive the April review process.
+- **StateTransitionLog**: An immutable audit trail of every macro state change for a student.
+    - **Traceability**: Records `from_state`, `to_state`, `event_name`, and the `actor` (User or System).
+    - **Performance**: Indexed on `(student, -timestamp)` for fast retrieval of historical transitions.
+    - **Metadata**: Uses `JSONField` for storing situational context, such as specific rule triggers or manual override justifications.
 
 ### Enums
 - **CourseState**: Represents the outcome of a single course. Distinguishes between hard fails and those eligible for summer school or teacher review.
