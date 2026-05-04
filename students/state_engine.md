@@ -42,9 +42,14 @@ The `apply_event` method in `students/services/state_engine.py` serves as the si
 ### Transition Guards
 - **IllegalTransitionError**: A custom exception raised when a requested transition violates business rules.
 - **Invariants**: 
-    - Validates all enum inputs against their allowed values.
-    - Prevents "de-finalization" (e.g., returning to a pending workflow state once a final April state has been assigned).
+- Validates all enum inputs against their allowed values.
+- Prevents "de-finalization" (e.g., returning to a pending workflow state once a final April state has been assigned).
+- **Snapshot Closure Gate (US2.4)**: Enforced via `close_april_snapshot(academic_year)` in `students/services/state_engine.py`.
+- **Purpose**: Prevents closing the April progression phase if any active student remains in `REQUIRES_REVIEW`.
+- **Optimization**: Uses `exists()` and `values()` to efficiently identify incomplete records without loading entire model instances into memory.
+- **Error Handling**: Raises `SnapshotClosureError` containing a list of incomplete students (names and IDs) to provide immediate actionable feedback to administrators.
 - **Pedagogical Guards (US2.2)**: Enforced via `validate_transition` in `students/services/transition_guards.py`.
+
     - **Summer Limit**: Maximum of 1 summer class per year.
     - **Teacher Review Boundary**: Overrides to pass/promote are only permitted for course grades between 57 and 59.
     - **Summer Eligibility**: Routing to summer school is restricted to course grades between 50 and 59.

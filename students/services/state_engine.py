@@ -10,6 +10,13 @@ class IllegalTransitionError(Exception):
     """Raised when a state transition violates business invariants."""
     pass
 
+class SnapshotClosureError(Exception):
+    """Raised when the April snapshot cannot be closed due to incomplete vetting."""
+    def __init__(self, incomplete_students: list[dict]):
+        self.incomplete_students = incomplete_students
+        names = ", ".join([s['full_name'] for s in incomplete_students])
+        super().__init__(f"Cannot close snapshot. Incomplete vetting for: {names}")
+
 def apply_event(
     student: Student,
     academic_year: str,
@@ -94,3 +101,23 @@ def apply_event(
         )
 
         return state
+
+def close_april_snapshot(academic_year: str) -> bool:
+    """
+    Validates that all active students for the year have been vetted.
+    Blocks closure if any active student is still in REQUIRES_REVIEW.
+    """
+    incomplete_vettings = StudentState.objects.filter(
+        academic_year=academic_year,
+        student__is_active=True,
+        vetting_status=VettingStatus.REQUIRES_REVIEW
+    ).select_related('student').values('student__fiche', 'student__full_name')
+
+    if incomplete_vettings.exists():
+        students_list = [
+            {'fiche': s['student__fiche'], 'full_name': s['student__full_name']} 
+            for s in incomplete_vettings
+        ]
+        raise SnapshotClosureError(incomplete_students=students_list)
+
+    return True
