@@ -64,3 +64,49 @@ class AutoDerivationTest(TestCase):
 
         self.assertEqual(result["workflow_state"], WorkflowState.IFP_CANDIDATE_REVIEW)
         self.assertTrue(result["reason_codes"]["hard_blocker"])
+
+    def test_override_force_pass_precedence(self):
+        """FORCE_PASS override should override failing grades and set MANUALLY_VETTED."""
+        from students.models import StudentPromotionOverride
+        # Failing grade that would normally trigger IFP review
+        AcademicResult.objects.create(student=self.student, offering=self.offering1, academic_year=self.academic_year, final_grade=45)
+        
+        StudentPromotionOverride.objects.create(
+            student=self.student, course=self.course1, 
+            academic_year=self.academic_year, override_type="FORCE_PASS"
+        )
+
+        result = derive_student_state(self.student, self.academic_year)
+
+        self.assertEqual(result["final_april_state"], FinalAprilState.APRIL_FINAL_PROMOTE_REGULAR)
+        self.assertEqual(result["vetting_status"], VettingStatus.MANUALLY_VETTED)
+        self.assertTrue(result["reason_codes"]["legacy_override_applied"])
+
+    def test_override_force_retake_precedence(self):
+        """FORCE_RETAKE override should override passing grades."""
+        from students.models import StudentPromotionOverride
+        # Passing grade
+        AcademicResult.objects.create(student=self.student, offering=self.offering1, academic_year=self.academic_year, final_grade=85)
+        
+        StudentPromotionOverride.objects.create(
+            student=self.student, course=self.course1, 
+            academic_year=self.academic_year, override_type="FORCE_RETAKE"
+        )
+
+        result = derive_student_state(self.student, self.academic_year)
+
+        self.assertEqual(result["final_april_state"], FinalAprilState.APRIL_FINAL_HOLDBACK)
+        self.assertEqual(result["vetting_status"], VettingStatus.MANUALLY_VETTED)
+
+    def test_override_transfer_ifp(self):
+        """TRANSFER_IFP override should map to APRIL_FINAL_IFP_N."""
+        from students.models import StudentPromotionOverride
+        StudentPromotionOverride.objects.create(
+            student=self.student, course=self.course1, 
+            academic_year=self.academic_year, override_type="TRANSFER_IFP"
+        )
+
+        result = derive_student_state(self.student, self.academic_year)
+
+        self.assertEqual(result["final_april_state"], FinalAprilState.APRIL_FINAL_IFP_N)
+        self.assertEqual(result["vetting_status"], VettingStatus.MANUALLY_VETTED)

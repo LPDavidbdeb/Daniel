@@ -61,6 +61,18 @@ class StateTransitionLog(models.Model):
         related_name='transition_logs'
     )
     from_state = models.CharField(max_length=50, null=True, blank=True)
+    to_workflow_state = models.CharField(
+        max_length=50,
+        choices=WorkflowState.choices,
+        null=True,
+        blank=True,
+    )
+    to_final_april_state = models.CharField(
+        max_length=50,
+        choices=FinalAprilState.choices,
+        null=True,
+        blank=True,
+    )
     to_state = models.CharField(max_length=50)
     event_name = models.CharField(max_length=100)
     actor = models.ForeignKey(

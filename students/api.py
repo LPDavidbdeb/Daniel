@@ -1,21 +1,25 @@
 from typing import List, Dict, Any, Optional
 import urllib.parse
 from django.db import IntegrityError
-from django.db.models import Count, Q, OuterRef, Subquery, Case, When, Value, CharField
+from django.db.models import Count, Q, OuterRef, Subquery, Case, When, Value, CharField, Prefetch
 from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404
 from ninja import Router, Schema
 from ninja.errors import HttpError
 from ninja_jwt.authentication import JWTAuth
-from .models import Student, AcademicResult, SummerSchoolEnrollment
+from .models import Student, AcademicResult, SummerSchoolEnrollment, StudentState, StudentPromotionOverride
 from .schemas import (
     StudentDetailOut, GroupListOut, StudentCrudIn, StudentCrudOut, EvaluationOut,
     LevelProjectionOut, GroupProjectionOut, StudentProjectionOut, ClassifiedCourseOut,
     CourseProjectionOut, CourseStudentOut, SummerSchoolEnrollIn, SummerSchoolEnrollOut,
-    TriageMatrixItem, TriageDrilldownOut,
+    TriageMatrixItem, TriageDrilldownOut, EvaluationActionIn, StudentQueueOut,
 )
-from .services import StudentProfilingService, StudentEvaluator
+from .services import StudentEvaluator
 from .services.classifier import CreditClassifierService, PromotionOutcome
+from .services import state_engine as StateEngine
+from .services.state_seeder import seed_student_state
+from .enums import FinalAprilState, VettingStatus, WorkflowState
+from .services.state_engine import IllegalTransitionError
 
 router = Router(auth=JWTAuth())
 
@@ -23,6 +27,11 @@ def _require_superuser(request) -> None:
     user = getattr(request, 'user', None)
     if not user or not user.is_authenticated or not user.is_superuser:
         raise HttpError(403, 'Acces refuse: superuser requis.')
+
+
+def _get_active_academic_year() -> str:
+    latest_year = StudentState.objects.order_by('-academic_year').values_list('academic_year', flat=True).first()
+    return latest_year or "2025-2026"
 
 class LevelStatOut(Schema):
     level: str
@@ -410,14 +419,29 @@ def summer_school_enroll(request, payload: SummerSchoolEnrollIn):
     student = get_object_or_404(Student, fiche=payload.student_fiche)
     course = get_object_or_404(Course, local_code=payload.course_code)
     try:
-        enroll = SummerSchoolEnrollment.objects.create(
+        if not StudentState.objects.filter(student=student, academic_year=payload.academic_year).exists():
+            seed_student_state(student, payload.academic_year)
+
+        StateEngine.apply_event(
             student=student,
-            course=course,
             academic_year=payload.academic_year,
-            enrolled_by=request.user,
+            event_name='ASSIGN_SUMMER',
+            new_workflow_state=WorkflowState.READY_FOR_FINALIZATION,
+            new_final_april_state=FinalAprilState.APRIL_FINAL_PROMOTE_WITH_SUMMER,
+            new_vetting_status=VettingStatus.MANUALLY_VETTED,
+            new_reason_codes={
+                'message': 'Manual override via Legacy API',
+                'legacy_endpoint': '/students/summer-school/enroll',
+            },
+            actor=request.user,
+            payload={'course_id': course.id},
         )
+
+        enroll = SummerSchoolEnrollment.objects.get(student=student, academic_year=payload.academic_year)
     except IntegrityError:
         raise HttpError(409, 'Cet élève est déjà inscrit à un cours d\'école d\'été pour cette année.')
+    except IllegalTransitionError as exc:
+        raise HttpError(409, str(exc))
     return SummerSchoolEnrollOut(
         id=enroll.id,
         student_fiche=student.fiche,
@@ -432,8 +456,72 @@ def summer_school_enroll(request, payload: SummerSchoolEnrollIn):
 @router.delete("/summer-school/{enrollment_id}")
 def summer_school_cancel(request, enrollment_id: int):
     enroll = get_object_or_404(SummerSchoolEnrollment, id=enrollment_id)
-    enroll.delete()
+    student = enroll.student
+    academic_year = enroll.academic_year
+
+    if not StudentState.objects.filter(student=student, academic_year=academic_year).exists():
+        seed_student_state(student, academic_year)
+
+    try:
+        StateEngine.apply_event(
+            student=student,
+            academic_year=academic_year,
+            event_name='REMOVE_SUMMER',
+            new_workflow_state=WorkflowState.READY_FOR_FINALIZATION,
+            new_final_april_state=FinalAprilState.APRIL_FINAL_PROMOTE_REGULAR,
+            new_vetting_status=VettingStatus.MANUALLY_VETTED,
+            new_reason_codes={
+                'message': 'Legacy API summer enrollment removed',
+                'legacy_endpoint': '/students/summer-school/{enrollment_id}',
+            },
+            actor=request.user,
+            payload={'course_id': enroll.course_id},
+        )
+    except IllegalTransitionError as exc:
+        raise HttpError(409, str(exc))
     return {'ok': True}
+
+
+@router.post("/{fiche}/evaluation", response=EvaluationOut)
+def resolve_student_evaluation(request, fiche: int, payload: EvaluationActionIn):
+    student = get_object_or_404(Student, fiche=fiche)
+
+    if not StudentState.objects.filter(student=student, academic_year=payload.academic_year).exists():
+        seed_student_state(student, payload.academic_year)
+
+    if payload.override_type and payload.course_code:
+        from school.models import Course
+        course = get_object_or_404(Course, local_code=payload.course_code)
+        StudentPromotionOverride.objects.update_or_create(
+            student=student,
+            course=course,
+            academic_year=payload.academic_year,
+            defaults={
+                'override_type': payload.override_type,
+                'reason': payload.reason or '',
+                'created_by': request.user,
+            }
+        )
+
+    try:
+        StateEngine.apply_event(
+            student=student,
+            academic_year=payload.academic_year,
+            event_name=payload.action,
+            new_workflow_state=payload.new_workflow_state,
+            new_final_april_state=payload.new_final_april_state,
+            new_vetting_status=VettingStatus.MANUALLY_VETTED,
+            new_reason_codes={
+                'action': payload.action,
+                'reason': payload.reason,
+                'override_type': payload.override_type,
+            },
+            actor=request.user,
+        )
+    except IllegalTransitionError as exc:
+        raise HttpError(409, str(exc))
+
+    return StudentEvaluator.evaluate_student_year(student, payload.academic_year)
 
 
 @router.get("/summer-school/{year}/{course_code}", response=List[SummerSchoolEnrollOut])
@@ -456,6 +544,51 @@ def summer_school_list(request, year: str, course_code: str):
         )
         for e in enrollments
     ]
+
+
+@router.get("/queues/ifp", response=List[StudentQueueOut])
+def get_ifp_queue(request):
+    active_year = _get_active_academic_year()
+    return Student.objects.filter(
+        states__academic_year=active_year,
+        states__workflow_state=WorkflowState.IFP_CANDIDATE_REVIEW,
+        states__vetting_status=VettingStatus.REQUIRES_REVIEW
+    ).prefetch_related(
+        'results__offering__course',
+        Prefetch('states', queryset=StudentState.objects.filter(academic_year=active_year), to_attr='active_year_states'),
+    ).distinct()
+
+@router.get("/queues/teacher-review", response=List[StudentQueueOut])
+def get_teacher_review_queue(request):
+    active_year = _get_active_academic_year()
+    return Student.objects.filter(
+        states__academic_year=active_year,
+        states__workflow_state=WorkflowState.REGULAR_REVIEW_PENDING,
+        states__vetting_status=VettingStatus.REQUIRES_REVIEW,
+        results__academic_year=active_year,
+        results__offering__course__is_core_or_sanctioned=True,
+        results__final_grade__gte=57,
+        results__final_grade__lt=60
+    ).prefetch_related(
+        'results__offering__course',
+        Prefetch('states', queryset=StudentState.objects.filter(academic_year=active_year), to_attr='active_year_states'),
+    ).distinct()
+
+@router.get("/queues/summer", response=List[StudentQueueOut])
+def get_summer_queue(request):
+    active_year = _get_active_academic_year()
+    return Student.objects.filter(
+        states__academic_year=active_year,
+        states__workflow_state=WorkflowState.REGULAR_REVIEW_PENDING,
+        states__vetting_status=VettingStatus.REQUIRES_REVIEW,
+        results__academic_year=active_year,
+        results__offering__course__is_core_or_sanctioned=True,
+        results__final_grade__gte=50,
+        results__final_grade__lt=60
+    ).prefetch_related(
+        'results__offering__course',
+        Prefetch('states', queryset=StudentState.objects.filter(academic_year=active_year), to_attr='active_year_states'),
+    ).distinct()
 
 
 @router.get("/stats/summary", response=List[LevelStatOut])
@@ -523,7 +656,12 @@ def list_groups(request):
 @router.get("/groups/{group_name}/students", response=List[StudentDetailOut])
 def list_group_students(request, group_name: str):
     decoded_name = urllib.parse.unquote(group_name)
-    return Student.objects.filter(current_group=decoded_name, is_active=True).prefetch_related('results__offering__course','results__offering__teacher')
+    active_year = _get_active_academic_year()
+    return Student.objects.filter(current_group=decoded_name, is_active=True).prefetch_related(
+        'results__offering__course',
+        'results__offering__teacher',
+        Prefetch('states', queryset=StudentState.objects.filter(academic_year=active_year), to_attr='active_year_states'),
+    )
 
 
 @router.get("/{fiche}/evaluation", response=EvaluationOut)
@@ -534,10 +672,12 @@ def get_student_evaluation(request, fiche: int, year: Optional[str] = "2024-2025
 
 @router.get("/{fiche}", response=StudentDetailOut)
 def get_student_detail(request, fiche: int):
+    active_year = _get_active_academic_year()
     return get_object_or_404(
         Student.objects.prefetch_related(
             'results__offering__course',
             'results__offering__teacher',
+            Prefetch('states', queryset=StudentState.objects.filter(academic_year=active_year), to_attr='active_year_states'),
         ),
         fiche=fiche,
     )
@@ -546,7 +686,10 @@ def get_student_detail(request, fiche: int):
 @router.get('/crud/students', response=List[StudentCrudOut])
 def list_students_crud(request):
     _require_superuser(request)
-    return Student.objects.all().order_by('full_name')
+    active_year = _get_active_academic_year()
+    return Student.objects.prefetch_related(
+        Prefetch('states', queryset=StudentState.objects.filter(academic_year=active_year), to_attr='active_year_states')
+    ).all().order_by('full_name')
 
 
 @router.post('/crud/students', response=StudentCrudOut)

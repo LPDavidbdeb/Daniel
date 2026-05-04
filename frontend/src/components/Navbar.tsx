@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FileUp, Users, LogOut, ChevronDown, Database, GraduationCap, BarChart3, Settings } from 'lucide-react';
+import { FileUp, Users, LogOut, ChevronDown, Database, GraduationCap, BarChart3, Settings, Briefcase } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isBureauxOpen, setIsBureauxOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -51,6 +52,33 @@ const Navbar = () => {
                 <Settings className="h-4 w-4" />
                 CRUD Ecole
               </Link>
+
+              <div className="relative" onMouseEnter={() => setIsBureauxOpen(true)} onMouseLeave={() => setIsBureauxOpen(false)}>
+                <button className={`flex items-center gap-1 h-16 px-3 py-2 rounded-md text-sm font-medium transition-colors ${location.pathname.startsWith('/queues') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'}`}>
+                  <Briefcase className="h-4 w-4" />
+                  Bureaux
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isBureauxOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isBureauxOpen && (
+                  <div className="absolute left-0 mt-0 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 animate-in fade-in slide-in-from-top-1 duration-200">
+                    <div className="py-1">
+                      <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-50">
+                        Files de Révision
+                      </div>
+                      <Link to="/queues/ifp" onClick={() => setIsBureauxOpen(false)} className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                        <Users className="h-4 w-4" /> Bureau IFP
+                      </Link>
+                      <Link to="/queues/teacher-review" onClick={() => setIsBureauxOpen(false)} className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-t border-gray-50">
+                        <BarChart3 className="h-4 w-4" /> Révision Enseignants
+                      </Link>
+                      <Link to="/queues/summer" onClick={() => setIsBureauxOpen(false)} className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors border-t border-gray-50">
+                        <GraduationCap className="h-4 w-4" /> Routage École d'Été
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <div className="relative" onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>
                 <button className={`flex items-center gap-1 h-16 px-3 py-2 rounded-md text-sm font-medium transition-colors ${location.pathname.startsWith('/import') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'}`}>

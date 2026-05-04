@@ -1,10 +1,12 @@
 from django.db import models
 
+
 class CourseState(models.TextChoices):
     PASS = "PASS", "Réussite"
     FAIL_NON_SUMMER = "FAIL_NON_SUMMER", "Échec (non admissible aux cours d'été)"
     SUMMER_ELIGIBLE = "SUMMER_ELIGIBLE", "Admissible aux cours d'été"
     SUMMER_ELIGIBLE_TEACHER_REVIEW = "SUMMER_ELIGIBLE_TEACHER_REVIEW", "Admissible aux cours d'été (avis de l'enseignant requis)"
+
 
 class WorkflowState(models.TextChoices):
     IFP_CANDIDATE_REVIEW = "IFP_CANDIDATE_REVIEW", "Révision des candidats IFP"

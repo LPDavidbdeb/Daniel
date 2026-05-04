@@ -1,7 +1,18 @@
 from ninja import ModelSchema, Schema
-from typing import List, Optional
+from typing import List, Optional, Literal
 from .models import Student
+from .enums import VettingStatus
 from .services import StudentProfilingService
+
+
+def _resolve_vetting_status(obj) -> Optional[str]:
+    # Prefer API-prefetched state to avoid per-row DB queries on list endpoints.
+    prefetched_states = getattr(obj, 'active_year_states', None)
+    if prefetched_states is not None:
+        return prefetched_states[0].vetting_status if prefetched_states else None
+
+    latest_state = obj.states.order_by('-academic_year').first()
+    return latest_state.vetting_status if latest_state else None
 
 class AcademicResultOut(Schema):
     course_code: str
@@ -46,6 +57,11 @@ class StudentOut(ModelSchema):
     failed_courses_count: int = 0
     academic_profile: str = "Non évalué"
     sanctioned_passed_count: int = 0
+    vetting_status: Optional[Literal[
+        VettingStatus.AUTO_VETTED,
+        VettingStatus.REQUIRES_REVIEW,
+        VettingStatus.MANUALLY_VETTED,
+    ]] = None
 
     class Meta:
         model = Student
@@ -66,6 +82,28 @@ class StudentOut(ModelSchema):
     @staticmethod
     def resolve_sanctioned_passed_count(obj):
         return StudentProfilingService.count_sanctioned_passed(obj)
+
+    @staticmethod
+    def resolve_vetting_status(obj):
+        return _resolve_vetting_status(obj)
+
+class StudentQueueOut(StudentOut):
+    workflow_state: Optional[str] = None
+    reason_codes: dict = {}
+
+    @staticmethod
+    def resolve_workflow_state(obj):
+        prefetched_states = getattr(obj, 'active_year_states', None)
+        if prefetched_states:
+            return prefetched_states[0].workflow_state
+        return None
+
+    @staticmethod
+    def resolve_reason_codes(obj):
+        prefetched_states = getattr(obj, 'active_year_states', None)
+        if prefetched_states:
+            return prefetched_states[0].reason_codes
+        return {}
 
 class StudentDetailOut(StudentOut):
     results: List[AcademicResultOut] = []
@@ -164,6 +202,16 @@ class SummerSchoolEnrollOut(Schema):
     academic_year: str
     enrolled_at: str
 
+
+class EvaluationActionIn(Schema):
+    academic_year: str
+    action: Literal['MANUAL_VETTING', 'RESOLVE_REVIEW']
+    course_code: Optional[str] = None
+    override_type: Optional[str] = None
+    reason: Optional[str] = None
+    new_workflow_state: Optional[str] = None
+    new_final_april_state: Optional[str] = None
+
 class StudentCrudIn(Schema):
     fiche: int
     permanent_code: str
@@ -174,9 +222,19 @@ class StudentCrudIn(Schema):
 
 
 class StudentCrudOut(ModelSchema):
+    vetting_status: Optional[Literal[
+        VettingStatus.AUTO_VETTED,
+        VettingStatus.REQUIRES_REVIEW,
+        VettingStatus.MANUALLY_VETTED,
+    ]] = None
+
     class Meta:
         model = Student
         fields = ['fiche', 'permanent_code', 'full_name', 'level', 'current_group', 'is_active']
+
+    @staticmethod
+    def resolve_vetting_status(obj):
+        return _resolve_vetting_status(obj)
 
 class EvaluationOut(Schema):
     student_id: int

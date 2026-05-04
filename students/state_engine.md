@@ -56,8 +56,21 @@ The `apply_event` method in `students/services/state_engine.py` serves as the si
     - **Hard Blocker**: Core or sanctioned courses with grades < 50 prevent any summer school promotion.
     - **IFP Prerequisites**: Finalizing to an IFP state requires a prior `IFP_CANDIDATE_REVIEW` workflow state.
 
+## Legacy System Synchronization (Epic 3)
+The `apply_event` gateway ensures bidirectional integrity with legacy tables during the transition phase.
+
+### Summer School Synchronization (US3.2)
+When a student's state is modified via `apply_event`, the system automatically synchronizes the legacy `SummerSchoolEnrollment` table:
+- **Automatic Enrollment**: Transitioning to `APRIL_FINAL_PROMOTE_WITH_SUMMER` triggers an automatic upsert in the legacy enrollment table. The `course_id` must be provided in the event payload.
+- **Automatic Withdrawal**: Transitioning to any state *other* than summer promotion (e.g., `PROMOTE_REGULAR`, `HOLDBACK`) automatically removes the corresponding record from the legacy table.
+- **Transactional Integrity**: Both the `StudentState` ledger update and the legacy table synchronization are wrapped in the same `transaction.atomic()` block.
+
 ## Auto-Derivation Service (US2.3)
 The `derive_student_state` service in `students/services/auto_derivation.py` calculates suggested states based on academic results.
+
+### Precedence Hierarchy (US3.1)
+1. **Manual Legacy Overrides (Highest)**: If a `StudentPromotionOverride` exists for the student and year, it is used immediately. The status is set to `MANUALLY_VETTED`.
+2. **Grade-based Logic (Standard)**: If no override exists, the logic matrix below is applied.
 
 ### Logic Matrix
 1. **Rule 4 (IFP / Holdback Candidate)**: 

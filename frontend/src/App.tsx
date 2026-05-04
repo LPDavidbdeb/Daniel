@@ -14,6 +14,9 @@ import TriageMatrixPage from '@/pages/TriageMatrixPage';
 import ClassificationDetail from '@/pages/ClassificationDetail';
 import AdminUsers from '@/pages/AdminUsers';
 import SchoolCrud from '@/pages/SchoolCrud';
+import IfpDesk from '@/pages/IfpDesk';
+import TeacherReviewDesk from '@/pages/TeacherReviewDesk';
+import SummerRoutingDesk from '@/pages/SummerRoutingDesk';
 import Navbar from '@/components/Navbar';
 import client from '@/api/client';
 import { isAuthenticated, subscribeAuthChange } from '@/auth';
@@ -84,6 +87,12 @@ function App() {
         <Route path="/stats" element={<ProtectedRoute><Layout><StudentStats /></Layout></ProtectedRoute>} />
         <Route path="/stats/triage" element={<ProtectedRoute><Layout><TriageMatrixPage /></Layout></ProtectedRoute>} />
         <Route path="/stats/cours/:level/:courseCode/:classification" element={<ProtectedRoute><Layout><ClassificationDetail /></Layout></ProtectedRoute>} />
+        
+        {/* Bureaux de Révision */}
+        <Route path="/queues/ifp" element={<ProtectedRoute><Layout><IfpDesk /></Layout></ProtectedRoute>} />
+        <Route path="/queues/teacher-review" element={<ProtectedRoute><Layout><TeacherReviewDesk /></Layout></ProtectedRoute>} />
+        <Route path="/queues/summer" element={<ProtectedRoute><Layout><SummerRoutingDesk /></Layout></ProtectedRoute>} />
+
         <Route
           path="/ecole/crud"
           element={

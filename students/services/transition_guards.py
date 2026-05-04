@@ -1,7 +1,6 @@
-from students.models import Student, StudentState, AcademicResult
+from students.models import Student, AcademicResult
 from students.enums import WorkflowState, FinalAprilState
 from students.constants import PASS_THRESHOLD, FAIL_HARD_BLOCK_THRESHOLD, TEACHER_REVIEW_MIN, MAX_SUMMER_CLASSES
-from django.db.models import Q
 
 def validate_transition(
     student: Student,
@@ -70,3 +69,18 @@ def validate_transition(
                      raise IllegalTransitionError(
                         f"Teacher review override not permitted for grade {res.final_grade} in {res.offering.course.local_code} (min {TEACHER_REVIEW_MIN})."
                     )
+
+    # FIX US2.2: Rule: Holdback Assignment
+    # A student cannot be assigned HOLDBACK without at least one failed course.
+    if new_final_april_state == FinalAprilState.APRIL_FINAL_HOLDBACK:
+        core_results = [r for r in results if r.offering.course.is_core_or_sanctioned]
+        failed_count = sum(
+            1 for r in core_results
+            if r.final_grade is not None and r.final_grade < PASS_THRESHOLD
+        )
+
+        if failed_count == 0:
+            raise IllegalTransitionError(
+                f"Cannot assign HOLDBACK without failed courses. Student has no failed core courses."
+            )
+
