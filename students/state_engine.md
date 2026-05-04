@@ -13,6 +13,22 @@ This feature defines the core state enumerations and policy constants for the Ap
 
 ## Data/Algorithm Decisions
 
+### State Seeding (US1.4)
+To transition from legacy Excel-based tracking to the State Engine, a seeding service (`seed_student_state`) and management command (`seed_student_states`) have been implemented.
+
+- **Target**: 100% of active students (`is_active=True`) for a given academic year.
+- **Idempotency**: The command uses `update_or_create` to safely handle multiple runs.
+- **Legacy Mapping Rules**:
+    - **Summer School**: If a `SummerSchoolEnrollment` exists for the student and year, the state is set to `APRIL_FINAL_PROMOTE_WITH_SUMMER` and `vetting_status` to `AUTO_VETTED`.
+    - **Overrides**: If a `StudentPromotionOverride` exists (and no summer enrollment is present), the following mapping applies:
+        - `FORCE_PASS` -> `APRIL_FINAL_PROMOTE_REGULAR`
+        - `FORCE_RETAKE` -> `APRIL_FINAL_HOLDBACK`
+        - `TRANSFER_IFP` -> `APRIL_FINAL_IFP_N`
+        - `TRANSFER_DIM` -> `APRIL_FINAL_HOLDBACK`
+        - Vetting status is set to `AUTO_VETTED` for overrides.
+    - **Default**: If no legacy records are found, the student is initialized with `WorkflowState.REGULAR_REVIEW_PENDING` and `vetting_status = REQUIRES_REVIEW`.
+- **Audit**: Every seeding event is recorded in the `StateTransitionLog` with `event_name='SYSTEM_SEED_INITIALIZATION'`.
+
 ### Models
 - **StudentState**: Acts as a "macro ledger" tracking the high-level progression state of each student per academic year.
     - **Unique Constraint**: `(student, academic_year)` ensures a single source of truth per year.
