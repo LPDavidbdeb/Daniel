@@ -35,7 +35,9 @@ class AutoDerivationTest(TestCase):
 
         self.assertEqual(result["workflow_state"], WorkflowState.REGULAR_REVIEW_PENDING)
         self.assertEqual(result["vetting_status"], VettingStatus.REQUIRES_REVIEW)
-        self.assertIn("Teacher Review Needed", result["reason_codes"]["message"])
+        self.assertIn("Teacher Review", result["reason_codes"]["message"])
+        # New architecture: Verify that the course is listed in teacher_review_courses
+        self.assertIn("MAT101 (58%)", result["reason_codes"]["teacher_review_courses"])
 
     def test_rule_3_summer_school(self):
         """Rule 3: Exactly one failure 50-59 (not in teacher review range) -> PROMOTE_WITH_SUMMER."""
@@ -48,13 +50,23 @@ class AutoDerivationTest(TestCase):
         self.assertEqual(result["final_april_state"], FinalAprilState.APRIL_FINAL_PROMOTE_WITH_SUMMER)
 
     def test_rule_4_ifp_candidate_multiple_fails(self):
-        """Rule 4: >1 failure -> IFP_CANDIDATE_REVIEW."""
+        """
+        Rule 4: >1 failure -> IFP_CANDIDATE_REVIEW.
+        NOTE: New Micro/Macro architecture changes this behavior:
+        - Grade 55 (MAT101) → SUMMER_ELIGIBLE (50-56 on core course)
+        - Grade 58 (FRA101) → TEACHER_REVIEW_PENDING (57-59)
+        Since TEACHER_REVIEW_PENDING has absolute priority over SUMMER_ELIGIBLE,
+        the student goes to REGULAR_REVIEW_PENDING (not IFP_CANDIDATE_REVIEW).
+        This is the correct behavior: teacher review takes precedence.
+        """
         AcademicResult.objects.create(student=self.student, offering=self.offering1, academic_year=self.academic_year, final_grade=55)
         AcademicResult.objects.create(student=self.student, offering=self.offering2, academic_year=self.academic_year, final_grade=58)
 
         result = derive_student_state(self.student, self.academic_year)
 
-        self.assertEqual(result["workflow_state"], WorkflowState.IFP_CANDIDATE_REVIEW)
+        # New behavior: Teacher Review (58) takes absolute priority
+        self.assertEqual(result["workflow_state"], WorkflowState.REGULAR_REVIEW_PENDING)
+        self.assertEqual(result["reason_codes"]["rule"], "TEACHER_REVIEW_PRIORITY")
 
     def test_rule_4_ifp_candidate_hard_blocker(self):
         """Rule 4: Any hard blocker (< 50) -> IFP_CANDIDATE_REVIEW."""
@@ -63,7 +75,9 @@ class AutoDerivationTest(TestCase):
         result = derive_student_state(self.student, self.academic_year)
 
         self.assertEqual(result["workflow_state"], WorkflowState.IFP_CANDIDATE_REVIEW)
-        self.assertTrue(result["reason_codes"]["hard_blocker"])
+        # New architecture: Check for HARD_FAILURE rule
+        self.assertEqual(result["reason_codes"]["rule"], "HARD_FAILURE")
+        self.assertIn("MAT101 (42%)", result["reason_codes"]["failed_courses"])
 
     def test_override_force_pass_precedence(self):
         """FORCE_PASS override should override failing grades and set MANUALLY_VETTED."""

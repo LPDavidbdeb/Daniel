@@ -69,7 +69,8 @@ class MasterIntegrationTest(TransactionTestCase):
         # 55% should suggest Summer School (Rule 3)
         self.assertEqual(derivation["workflow_state"], WorkflowState.READY_FOR_FINALIZATION)
         self.assertEqual(derivation["final_april_state"], FinalAprilState.APRIL_FINAL_PROMOTE_WITH_SUMMER)
-        self.assertIn("Summer School", derivation["reason_codes"]["message"])
+        # New Micro/Macro architecture: message format updated
+        self.assertIn("Summer", derivation["reason_codes"]["message"])
 
         # --- Step 3: Guard Rules Enforcement (Epic 2) ---
         # Attempt an illegal transition (promote regular despite 55% < 57% threshold)

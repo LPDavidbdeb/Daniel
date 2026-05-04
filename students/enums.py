@@ -1,6 +1,14 @@
 from django.db import models
 
 
+class CourseEvalState(models.TextChoices):
+    """Micro-level evaluation state for a single course result."""
+    PASS = "PASS", "Réussite (≥60)"
+    TEACHER_REVIEW_PENDING = "TEACHER_REVIEW_PENDING", "Avis enseignant requis (57-59)"
+    SUMMER_ELIGIBLE = "SUMMER_ELIGIBLE", "Admissible aux cours d'été (50-56, cours de base)"
+    FAILED = "FAILED", "Échec (< 50 ou 50-56 cours non-sanctionné)"
+
+
 class CourseState(models.TextChoices):
     PASS = "PASS", "Réussite"
     FAIL_NON_SUMMER = "FAIL_NON_SUMMER", "Échec (non admissible aux cours d'été)"

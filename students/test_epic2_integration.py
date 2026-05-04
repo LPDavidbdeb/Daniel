@@ -116,7 +116,9 @@ class Epic2BlockedClosureTest(TestCase):
             VettingStatus.REQUIRES_REVIEW,
             "Teacher-review students must be flagged REQUIRES_REVIEW by derivation.",
         )
-        self.assertIn("Teacher Review Needed", suggestion["reason_codes"]["message"])
+        # New Micro/Macro architecture: message format updated
+        self.assertIn("Teacher Review", suggestion["reason_codes"]["message"])
+        self.assertEqual(suggestion["reason_codes"]["rule"], "TEACHER_REVIEW_PRIORITY")
 
         # ============================================================ #
         # STEP 2 — Orchestration via apply_event (US2.1)
