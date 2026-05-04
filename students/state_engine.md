@@ -29,6 +29,28 @@ To transition from legacy Excel-based tracking to the State Engine, a seeding se
     - **Default**: If no legacy records are found, the student is initialized with `WorkflowState.REGULAR_REVIEW_PENDING` and `vetting_status = REQUIRES_REVIEW`.
 - **Audit**: Every seeding event is recorded in the `StateTransitionLog` with `event_name='SYSTEM_SEED_INITIALIZATION'`.
 
+## Orchestration Gateway (US2.1)
+The `apply_event` method in `students/services/state_engine.py` serves as the singular entry point for all student state transitions.
+
+### Design Patterns
+- **Gateway/Orchestrator Pattern**: Centralizes complex logic (validation, guards, persistence, logging) into a single method to ensure consistency.
+- **Concurrency Control**: 
+    - Uses `transaction.atomic()` to ensure that the ledger update and audit log write happen as a single unit of work.
+    - Employs `select_for_update()` to obtain a row-level database lock on the `StudentState` record, preventing race conditions during concurrent modifications.
+- **Audit Logging**: Synchronously creates a `StateTransitionLog` for every successful call, ensuring 100% traceability.
+
+### Transition Guards
+- **IllegalTransitionError**: A custom exception raised when a requested transition violates business rules.
+- **Invariants**: 
+    - Validates all enum inputs against their allowed values.
+    - Prevents "de-finalization" (e.g., returning to a pending workflow state once a final April state has been assigned).
+- **Pedagogical Guards (US2.2)**: Enforced via `validate_transition` in `students/services/transition_guards.py`.
+    - **Summer Limit**: Maximum of 1 summer class per year.
+    - **Teacher Review Boundary**: Overrides to pass/promote are only permitted for course grades between 57 and 59.
+    - **Summer Eligibility**: Routing to summer school is restricted to course grades between 50 and 59.
+    - **Hard Blocker**: Core or sanctioned courses with grades < 50 prevent any summer school promotion.
+    - **IFP Prerequisites**: Finalizing to an IFP state requires a prior `IFP_CANDIDATE_REVIEW` workflow state.
+
 ### Models
 - **StudentState**: Acts as a "macro ledger" tracking the high-level progression state of each student per academic year.
     - **Unique Constraint**: `(student, academic_year)` ensures a single source of truth per year.

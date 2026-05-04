@@ -24,23 +24,23 @@ def seed_student_state(student: Student, academic_year: str) -> StudentState:
     final_april_state = None
     vetting_status = VettingStatus.REQUIRES_REVIEW
     
-    # 1. Check for Summer School Enrollment (takes precedence in US1.4 description)
+    # Check for legacy records
     summer_enrollment = SummerSchoolEnrollment.objects.filter(
         student=student, academic_year=academic_year
     ).first()
     
+    override = StudentPromotionOverride.objects.filter(
+        student=student, academic_year=academic_year
+    ).first()
+
+    # 1. Check for Summer School Enrollment (takes precedence)
     if summer_enrollment:
         final_april_state = FinalAprilState.APRIL_FINAL_PROMOTE_WITH_SUMMER
         vetting_status = VettingStatus.AUTO_VETTED
-    else:
-        # 2. Check for Overrides
-        override = StudentPromotionOverride.objects.filter(
-            student=student, academic_year=academic_year
-        ).first()
-        
-        if override and override.override_type in OVERRIDE_MAPPING:
-            final_april_state = OVERRIDE_MAPPING[override.override_type]
-            vetting_status = VettingStatus.AUTO_VETTED # Overrides are manually vetted by definition
+    # 2. Check for Overrides
+    elif override and override.override_type in OVERRIDE_MAPPING:
+        final_april_state = OVERRIDE_MAPPING[override.override_type]
+        vetting_status = VettingStatus.AUTO_VETTED
 
     # Create or Update StudentState
     state, created = StudentState.objects.update_or_create(
@@ -64,7 +64,7 @@ def seed_student_state(student: Student, academic_year: str) -> StudentState:
             'message': 'Initial seeding from legacy data',
             'created': created,
             'legacy_summer': bool(summer_enrollment),
-            'legacy_override': bool(override if 'override' in locals() else False)
+            'legacy_override': bool(override)
         }
     )
 
