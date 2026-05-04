@@ -13,6 +13,13 @@ This feature defines the core state enumerations and policy constants for the Ap
 
 ## Data/Algorithm Decisions
 
+### Models
+- **StudentState**: Acts as a "macro ledger" tracking the high-level progression state of each student per academic year.
+    - **Unique Constraint**: `(student, academic_year)` ensures a single source of truth per year.
+    - **Reason Codes**: A `JSONField` is used to store flexible metadata and audit trail information about decision logic.
+    - **Version**: Included for future optimistic concurrency and audit tracing.
+    - **Workflow States**: Uses the enums defined in US1.1 to drive the April review process.
+
 ### Enums
 - **CourseState**: Represents the outcome of a single course. Distinguishes between hard fails and those eligible for summer school or teacher review.
 - **WorkflowState**: Manages the high-level progression of the April review process.

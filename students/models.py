@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from students.enums import WorkflowState, FinalAprilState, VettingStatus
 
 class Student(models.Model):
     fiche = models.IntegerField(primary_key=True)
@@ -11,6 +12,47 @@ class Student(models.Model):
 
     def __str__(self):
         return f"{self.full_name} ({self.fiche})"
+
+class StudentState(models.Model):
+    student = models.ForeignKey(
+        Student, 
+        on_delete=models.CASCADE, 
+        related_name='states'
+    )
+    academic_year = models.CharField(max_length=9, db_index=True)
+    
+    workflow_state = models.CharField(
+        max_length=50, 
+        choices=WorkflowState.choices, 
+        null=True, 
+        blank=True
+    )
+    final_april_state = models.CharField(
+        max_length=50, 
+        choices=FinalAprilState.choices, 
+        null=True, 
+        blank=True
+    )
+    vetting_status = models.CharField(
+        max_length=50, 
+        choices=VettingStatus.choices, 
+        default=VettingStatus.REQUIRES_REVIEW
+    )
+    
+    ifp_target = models.CharField(max_length=10, null=True, blank=True)
+    reason_codes = models.JSONField(default=dict, blank=True)
+    version = models.IntegerField(default=1)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['student', 'academic_year'], 
+                name='unique_student_academic_year'
+            )
+        ]
+
+    def __str__(self):
+        return f"État: {self.student.full_name} ({self.academic_year})"
 
 class AcademicResult(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='results')
