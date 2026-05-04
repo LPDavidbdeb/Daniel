@@ -89,7 +89,7 @@ def apply_event(
         StateTransitionLog.objects.create(
             student=student,
             from_state=from_workflow_state,
-            to_state=new_workflow_state or from_workflow_state, # Simplified for workflow tracking
+            to_state=new_workflow_state or new_final_april_state or from_workflow_state or "NO_STATE_CHANGE",
             event_name=event_name,
             actor=actor,
             reason_payload={
