@@ -51,6 +51,23 @@ The `apply_event` method in `students/services/state_engine.py` serves as the si
     - **Hard Blocker**: Core or sanctioned courses with grades < 50 prevent any summer school promotion.
     - **IFP Prerequisites**: Finalizing to an IFP state requires a prior `IFP_CANDIDATE_REVIEW` workflow state.
 
+## Auto-Derivation Service (US2.3)
+The `derive_student_state` service in `students/services/auto_derivation.py` calculates suggested states based on academic results.
+
+### Logic Matrix
+1. **Rule 4 (IFP / Holdback Candidate)**: 
+    - Trigger: >1 failure OR any hard blocker (< 50) in core courses.
+    - Derived State: `WorkflowState.IFP_CANDIDATE_REVIEW`.
+2. **Rule 2 (Teacher Review Queue)**: 
+    - Trigger: Any core course grade between 57-59 AND no hard blockers.
+    - Derived State: `WorkflowState.REGULAR_REVIEW_PENDING` (REQUIRES_REVIEW).
+3. **Rule 3 (Summer School Queue)**: 
+    - Trigger: Exactly one core course failure between 50-59 (and no hard blockers).
+    - Derived State: `WorkflowState.READY_FOR_FINALIZATION` with `FinalAprilState.APRIL_FINAL_PROMOTE_WITH_SUMMER`.
+4. **Rule 1 (Auto-Promote)**: 
+    - Trigger: All core courses >= 60.
+    - Derived State: `WorkflowState.READY_FOR_FINALIZATION` with `FinalAprilState.APRIL_FINAL_PROMOTE_REGULAR` (AUTO_VETTED).
+
 ### Models
 - **StudentState**: Acts as a "macro ledger" tracking the high-level progression state of each student per academic year.
     - **Unique Constraint**: `(student, academic_year)` ensures a single source of truth per year.
