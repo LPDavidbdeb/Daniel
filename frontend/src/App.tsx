@@ -17,6 +17,7 @@ import SchoolCrud from '@/pages/SchoolCrud';
 import IfpDesk from '@/pages/IfpDesk';
 import TeacherReviewDesk from '@/pages/TeacherReviewDesk';
 import SummerRoutingDesk from '@/pages/SummerRoutingDesk';
+import RulesAuditPage from '@/pages/RulesAuditPage';
 import Navbar from '@/components/Navbar';
 import client from '@/api/client';
 import { isAuthenticated, subscribeAuthChange } from '@/auth';
@@ -92,6 +93,9 @@ function App() {
         <Route path="/queues/ifp" element={<ProtectedRoute><Layout><IfpDesk /></Layout></ProtectedRoute>} />
         <Route path="/queues/teacher-review" element={<ProtectedRoute><Layout><TeacherReviewDesk /></Layout></ProtectedRoute>} />
         <Route path="/queues/summer" element={<ProtectedRoute><Layout><SummerRoutingDesk /></Layout></ProtectedRoute>} />
+
+        {/* Documentation vivante */}
+        <Route path="/audit/regles" element={<ProtectedRoute><Layout><RulesAuditPage /></Layout></ProtectedRoute>} />
 
         <Route
           path="/ecole/crud"

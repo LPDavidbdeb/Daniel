@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FileUp, Users, LogOut, ChevronDown, Database, GraduationCap, BarChart3, Settings, Briefcase } from 'lucide-react';
+import { FileUp, Users, LogOut, ChevronDown, Database, GraduationCap, BarChart3, Settings, Briefcase, ScrollText } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,6 +51,11 @@ const Navbar = () => {
               <Link to="/ecole/crud" className={`flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${location.pathname.startsWith('/ecole') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'}`}>
                 <Settings className="h-4 w-4" />
                 CRUD Ecole
+              </Link>
+
+              <Link to="/audit/regles" className={`flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${location.pathname.startsWith('/audit') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'}`}>
+                <ScrollText className="h-4 w-4" />
+                Audit Règles
               </Link>
 
               <div className="relative" onMouseEnter={() => setIsBureauxOpen(true)} onMouseLeave={() => setIsBureauxOpen(false)}>

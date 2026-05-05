@@ -90,6 +90,7 @@ class StudentOut(ModelSchema):
 class StudentQueueOut(StudentOut):
     workflow_state: Optional[str] = None
     reason_codes: dict = {}
+    results: List[AcademicResultOut] = []
 
     @staticmethod
     def resolve_workflow_state(obj):
@@ -104,6 +105,10 @@ class StudentQueueOut(StudentOut):
         if prefetched_states:
             return prefetched_states[0].reason_codes
         return {}
+
+    @staticmethod
+    def resolve_results(obj):
+        return getattr(obj, 'active_year_results', [])
 
 class StudentDetailOut(StudentOut):
     results: List[AcademicResultOut] = []

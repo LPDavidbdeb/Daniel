@@ -547,21 +547,25 @@ def summer_school_list(request, year: str, course_code: str):
 
 
 @router.get("/queues/ifp", response=List[StudentQueueOut])
-def get_ifp_queue(request):
+def get_ifp_queue(request, grade_level: Optional[str] = None):
     active_year = _get_active_academic_year()
-    return Student.objects.filter(
+    qs = Student.objects.filter(
         states__academic_year=active_year,
         states__workflow_state=WorkflowState.IFP_CANDIDATE_REVIEW,
         states__vetting_status=VettingStatus.REQUIRES_REVIEW
-    ).prefetch_related(
+    )
+    if grade_level:
+        qs = qs.filter(level=grade_level)
+    return qs.prefetch_related(
         'results__offering__course',
+        Prefetch('results', queryset=AcademicResult.objects.filter(academic_year=active_year).select_related('offering__course'), to_attr='active_year_results'),
         Prefetch('states', queryset=StudentState.objects.filter(academic_year=active_year), to_attr='active_year_states'),
     ).distinct()
 
 @router.get("/queues/teacher-review", response=List[StudentQueueOut])
-def get_teacher_review_queue(request):
+def get_teacher_review_queue(request, grade_level: Optional[str] = None):
     active_year = _get_active_academic_year()
-    return Student.objects.filter(
+    qs = Student.objects.filter(
         states__academic_year=active_year,
         states__workflow_state=WorkflowState.REGULAR_REVIEW_PENDING,
         states__vetting_status=VettingStatus.REQUIRES_REVIEW,
@@ -569,15 +573,19 @@ def get_teacher_review_queue(request):
         results__offering__course__is_core_or_sanctioned=True,
         results__final_grade__gte=57,
         results__final_grade__lt=60
-    ).prefetch_related(
+    )
+    if grade_level:
+        qs = qs.filter(level=grade_level)
+    return qs.prefetch_related(
         'results__offering__course',
+        Prefetch('results', queryset=AcademicResult.objects.filter(academic_year=active_year).select_related('offering__course'), to_attr='active_year_results'),
         Prefetch('states', queryset=StudentState.objects.filter(academic_year=active_year), to_attr='active_year_states'),
     ).distinct()
 
 @router.get("/queues/summer", response=List[StudentQueueOut])
-def get_summer_queue(request):
+def get_summer_queue(request, grade_level: Optional[str] = None):
     active_year = _get_active_academic_year()
-    return Student.objects.filter(
+    qs = Student.objects.filter(
         states__academic_year=active_year,
         states__workflow_state=WorkflowState.REGULAR_REVIEW_PENDING,
         states__vetting_status=VettingStatus.REQUIRES_REVIEW,
@@ -585,8 +593,12 @@ def get_summer_queue(request):
         results__offering__course__is_core_or_sanctioned=True,
         results__final_grade__gte=50,
         results__final_grade__lt=60
-    ).prefetch_related(
+    )
+    if grade_level:
+        qs = qs.filter(level=grade_level)
+    return qs.prefetch_related(
         'results__offering__course',
+        Prefetch('results', queryset=AcademicResult.objects.filter(academic_year=active_year).select_related('offering__course'), to_attr='active_year_results'),
         Prefetch('states', queryset=StudentState.objects.filter(academic_year=active_year), to_attr='active_year_states'),
     ).distinct()
 
